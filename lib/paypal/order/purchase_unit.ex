@@ -1,4 +1,8 @@
 defmodule Paypal.Order.PurchaseUnit do
+  @moduledoc """
+  The purchase unit is the information for each unit purchased (or to purchase)
+  included in an order.
+  """
   use TypedEctoSchema
 
   import Ecto.Changeset
@@ -10,6 +14,11 @@ defmodule Paypal.Order.PurchaseUnit do
 
   @primary_key false
 
+  @typedoc """
+  The information for the purchase unit. It's composed for the provided
+  items to be purchased, the information about the payee, payment instructions,
+  shipping, etc.
+  """
   typed_embedded_schema do
     field(:reference_id, :string, default: "default")
     field(:description, :string)

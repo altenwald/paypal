@@ -1,4 +1,9 @@
 defmodule Paypal.Order.Authorization do
+  @moduledoc """
+  Authorization is the information embeded into the
+  `Paypal.Order.Authorized` for getting all of the information for the
+  authorized payment.
+  """
   use TypedEctoSchema
 
   alias Paypal.Common.CurrencyValue
@@ -16,6 +21,11 @@ defmodule Paypal.Order.Authorization do
 
   @primary_key false
 
+  @typedoc """
+  The information about the authorization performed on an order.
+  The important information here is the `id` because it will be
+  important to perform actions using `Paypal.Payment` functions.
+  """
   typed_embedded_schema do
     field(:id, :string, primary_key: true)
     field(:status, Ecto.Enum, values: @statuses, embed_as: :dumped)
@@ -29,6 +39,9 @@ defmodule Paypal.Order.Authorization do
     field(:network_transaction_reference, :map)
 
     embeds_one :seller_protection, SellerProtection, primary_key: false do
+      @moduledoc false
+      @typedoc false
+
       @seller_protection_statuses [
         eligible: "ELIGIBLE",
         partially_eligible: "PARTIALLY_ELIGIBLE",

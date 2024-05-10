@@ -1,4 +1,9 @@
 defmodule Paypal.Order.ExperienceContext do
+  @moduledoc """
+  The experience context is the information needed for creating an order
+  and provide information about how Paypal should behave when we go to its
+  website for performing the payment.
+  """
   use TypedEctoSchema
   import Ecto.Changeset
   import Paypal.EctoHelpers
@@ -27,6 +32,22 @@ defmodule Paypal.Order.ExperienceContext do
     pay_now: "PAY_NOW"
   ]
 
+  @typedoc """
+  The customisation we could perform are the following ones:
+
+  - `payment_method_experience` is unrestricted or immediate_payment_required.
+  - `brand_name` is your branding that you want to show to your client.
+  - `locale` is the language you want to use.
+  - `landing_page` is where the user goes first:
+    - `login` if we want the user see the paypal login page first.
+    - `guest_checkout` if we want to Paypal show first the manual payment.
+    - `no_preference` if we want Paypal choose based on the user.
+  - `shipping_preference` is an indication about where we get the shipping
+    data we could say here `no_shipping` for avoiding use a shipping address.
+  - `user_action` is the action the user could do: continue or pay_now.
+  - `return_url` is the URL where redirects when the payment is correct.
+  - `cancel_url` is the URL where redirects when the payment is cancelled.
+  """
   typed_embedded_schema do
     field(:payment_method_experience, Ecto.Enum, values: @methods, embed_as: :dumped)
     field(:brand_name, :string)

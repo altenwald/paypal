@@ -22,7 +22,13 @@ defmodule Paypal.Case do
     "http://localhost:#{bypass.port()}"
   end
 
-  def response(conn, code, data \\ []) do
+  def response(conn, code, data \\ nil)
+
+  def response(conn, code, nil) do
+    Plug.Conn.resp(conn, code, [])
+  end
+
+  def response(conn, code, data) do
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
     |> Plug.Conn.resp(code, Jason.encode!(data))

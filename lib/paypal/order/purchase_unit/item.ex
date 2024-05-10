@@ -1,4 +1,8 @@
 defmodule Paypal.Order.PurchaseUnit.Item do
+  @moduledoc """
+  The item inside of each purchase unit.
+  See `Paypal.Order.PurchaseUnit`.
+  """
   use TypedEctoSchema
 
   import Ecto.Changeset
@@ -16,6 +20,21 @@ defmodule Paypal.Order.PurchaseUnit.Item do
     donation: "DONATION"
   ]
 
+  @typedoc """
+  The purchase unit has different items and each item has the following
+  information:
+
+  - `name` of the item.
+  - `quantity` of the item included in the order.
+  - `description` of the item.
+  - `sku` is the ID for the item.
+  - `url` is the URL for the item.
+  - `category` is the category where the item is included.
+  - `image_url` is the URL for the image.
+  - `unit_amount` is the price for each unit.
+  - `tax` is the price for the taxes.
+  - `upc` is the UPC EAN code.
+  """
   typed_embedded_schema do
     field(:name, :string)
     field(:quantity, :integer)

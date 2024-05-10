@@ -1,10 +1,15 @@
 defmodule Paypal.Payment do
+  @moduledoc """
+  Perform payment actions for Paypal. The payments are authorized orders.
+  You can see further information via `Paypal.Order`.
+  """
   use Tesla, only: [:get, :post], docs: false
 
   require Logger
 
   alias Paypal.Auth
   alias Paypal.Common.Error, as: PaymentError
+  alias Paypal.Payment.Captured
   alias Paypal.Payment.Info
 
   plug(Tesla.Middleware.Logger,
@@ -22,6 +27,9 @@ defmodule Paypal.Payment do
 
   plug(Tesla.Middleware.JSON)
 
+  @doc """
+  Show information about the authorized order.
+  """
   def show(id) do
     case get("/authorizations/#{id}") do
       {:ok, %_{status: 200, body: response}} ->
@@ -35,6 +43,10 @@ defmodule Paypal.Payment do
     end
   end
 
+  @doc """
+  Void the authorized order. It's a way for cancel or return the blocked
+  or authorized fonds.
+  """
   def void(id) do
     case post("/authorizations/#{id}/void", "") do
       {:ok, %_{status: code, body: ""}} when code in 200..299 ->
@@ -48,10 +60,14 @@ defmodule Paypal.Payment do
     end
   end
 
+  @doc """
+  Capture the authorized order. It's the final step to perform a payment with
+  an authorized order.
+  """
   def capture(id) do
     case post("/authorizations/#{id}/capture", "") do
       {:ok, %_{status: code, body: response}} when code in 200..299 ->
-        {:ok, response}
+        {:ok, Captured.cast(response)}
 
       {:ok, %_{body: response}} ->
         {:error, PaymentError.cast(response)}

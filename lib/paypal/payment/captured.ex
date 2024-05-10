@@ -1,4 +1,7 @@
 defmodule Paypal.Payment.Captured do
+  @moduledoc """
+  The returned information after performing a capture of an authorized order.
+  """
   use TypedEctoSchema
 
   alias Paypal.Common.CurrencyValue
@@ -20,6 +23,23 @@ defmodule Paypal.Payment.Captured do
 
   @primary_key false
 
+  @typedoc """
+  The information about the captured order is the following one:
+
+  - `id` for the authorized order.
+  - `invoice_id` (optional) is the provided invoice ID provided when the order
+    was created or authorized.
+  - `custom_id` (optional) is the provided custom ID when the order was created
+    or authorized.
+  - `final_capture` it's about a fraction of the order to be paid.
+  - `links` are the links about the following possible options (HATEOAS).
+  - `status` for the authorized order.
+  - `status_details` is a string defining the status for the authorized order.
+  - `disbursement_mode`
+  - `amount` is the price for the order to be paid.
+  - `create_time` (optional) is the time when the authorized order was created.
+  - `update_time` (optional) is the time when the authorized order was updated.
+  """
   typed_embedded_schema do
     field(:id, :string, primary_key: true)
     field(:invoice_id, :string)

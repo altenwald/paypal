@@ -9,7 +9,7 @@ defmodule Paypal.Auth.Request do
   require Logger
 
   plug(Tesla.Middleware.Logger,
-    format: "$method /api/domains$url?$query ===> $status / time=$time",
+    format: "$method $url ===> $status / time=$time",
     log_level: :debug
   )
 
@@ -27,6 +27,9 @@ defmodule Paypal.Auth.Request do
 
   plug(Tesla.Middleware.DecodeJson)
 
+  @doc """
+  Perform the authorization and retrieve the response.
+  """
   def auth do
     with {:ok, %_{body: response}} <- post("/v1/oauth2/token", "grant_type=client_credentials") do
       {:ok, response}

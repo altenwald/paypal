@@ -1,4 +1,7 @@
 defmodule Paypal.Order.Create do
+  @moduledoc """
+  Create an order. It contains the information for creating an order.
+  """
   use TypedEctoSchema
 
   import Ecto.Changeset
@@ -11,6 +14,13 @@ defmodule Paypal.Order.Create do
 
   @primary_key false
 
+  @typedoc """
+  The information for creating an order is based on two principal data:
+
+  - `intent` that could be `:capture` or `:authorize`.
+  - `purchase_units` that is the information for the payment.
+    See `Paypal.Order.PurchaseUnit`.
+  """
   typed_embedded_schema do
     field(:intent, Ecto.Enum, values: Order.intents(), embed_as: :dumped)
     embeds_many(:purchase_units, PurchaseUnit)

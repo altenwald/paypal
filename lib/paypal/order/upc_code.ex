@@ -1,4 +1,7 @@
 defmodule Paypal.Order.UpcCode do
+  @moduledoc """
+  The UPC EAN code.
+  """
   use TypedEctoSchema
   import Ecto.Changeset
 
@@ -16,6 +19,9 @@ defmodule Paypal.Order.UpcCode do
     upc_5: "UPC-5"
   ]
 
+  @typedoc """
+  It's defining the `type` for the UPC code (i.e. UPC-A) and the `code`.
+  """
   typed_embedded_schema do
     field(:type, Ecto.Enum, values: @upc_types)
     field(:code, :string)
