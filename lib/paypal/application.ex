@@ -5,6 +5,7 @@ defmodule Paypal.Application do
   @doc false
   def start(_type, _args) do
     children = [
+      {Finch, name: Paypal.Finch},
       Paypal.Auth.Worker
     ]
 

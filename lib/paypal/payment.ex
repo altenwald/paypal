@@ -12,6 +12,8 @@ defmodule Paypal.Payment do
   alias Paypal.Payment.Captured
   alias Paypal.Payment.Info
 
+  adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
+
   plug(Tesla.Middleware.Logger,
     format: "$method /v2/payments$url ===> $status / time=$time",
     log_level: :debug

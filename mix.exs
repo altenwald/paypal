@@ -62,6 +62,7 @@ defmodule Paypal.MixProject do
   defp deps do
     [
       {:tesla, "~> 1.9"},
+      {:finch, "~> 0.17"},
       {:countries, "~> 1.6"},
       {:money, "~> 1.12"},
       {:typed_ecto_schema, "~> 0.4"},

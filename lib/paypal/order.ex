@@ -33,6 +33,8 @@ defmodule Paypal.Order do
   alias Paypal.Order.ExperienceContext
   alias Paypal.Order.Info
 
+  adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
+
   plug(Tesla.Middleware.Logger,
     format: "$method /v2/checkout$url ===> $status / time=$time",
     log_level: :debug

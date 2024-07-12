@@ -8,6 +8,8 @@ defmodule Paypal.Auth.Request do
 
   require Logger
 
+  adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
+
   plug(Tesla.Middleware.Logger,
     format: "$method $url ===> $status / time=$time",
     log_level: :debug
