@@ -24,7 +24,7 @@ defmodule Paypal.Payment.Info do
 
   - `id` for the authorized order ID.
   - `create_time` is the date and time when the order was created.
-  - `expiration_time` is the date and time when the authorization expries.
+  - `expiration_time` is the date and time when the authorization expires.
   - `amount` is the price to be paid.
   - `links` are the possible actions to follow (HATEOAS).
   - `payee` is the information about who is paying the order.
