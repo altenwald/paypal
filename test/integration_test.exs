@@ -153,6 +153,11 @@ defmodule Paypal.IntegrationTest do
           method: :post
         }
       ],
+      payer: %Paypal.Order.Payer{
+        payer_id: "JWEUL3HMBVGJ6",
+        name: %{"given_name" => "test", "surname" => "buyer"},
+        email_address: "buyer@rich.com"
+      },
       purchase_units: [
         %Paypal.Order.PurchaseUnit{
           reference_id: "default",
@@ -642,6 +647,11 @@ defmodule Paypal.IntegrationTest do
           method: :post
         }
       ],
+      payer: %Paypal.Order.Payer{
+        payer_id: "JWEUL3HMBVGJ6",
+        name: %{"given_name" => "test", "surname" => "buyer"},
+        email_address: "buyer@rich.com"
+      },
       purchase_units: [
         %Paypal.Order.PurchaseUnit{
           reference_id: "default",
@@ -1086,12 +1096,17 @@ defmodule Paypal.IntegrationTest do
           method: :get
         }
       ],
+      payer: %Paypal.Order.Payer{
+        payer_id: "JWEUL3HMBVGJ6",
+        name: %{"given_name" => "test", "surname" => "buyer"},
+        email_address: "payment-buyer@altenwald.com"
+      },
       purchase_units: [
         %Paypal.Order.PurchaseUnit{}
       ],
       status: :completed
     }
 
-    assert {:ok, info} == Paypal.Order.capture(order.id)
+    assert {:ok, ^info} = Paypal.Order.capture(order.id)
   end
 end

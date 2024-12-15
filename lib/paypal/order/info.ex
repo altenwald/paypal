@@ -6,6 +6,7 @@ defmodule Paypal.Order.Info do
 
   alias Paypal.Common.Link
   alias Paypal.Order
+  alias Paypal.Order.Payer
   alias Paypal.Order.PurchaseUnit
 
   @primary_key false
@@ -27,6 +28,7 @@ defmodule Paypal.Order.Info do
     embeds_many(:links, Link)
     embeds_many(:purchase_units, PurchaseUnit)
     field(:status, Ecto.Enum, values: Order.statuses())
+    embeds_one(:payer, Payer)
   end
 
   @doc false
