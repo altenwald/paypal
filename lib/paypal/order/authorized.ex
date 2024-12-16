@@ -24,13 +24,26 @@ defmodule Paypal.Order.Authorized do
     field(:payment_source, :map)
 
     embeds_many :purchase_units, PurchaseUnit, primary_key: false do
-      @moduledoc false
-      @typedoc false
+      @moduledoc """
+      Purchase Unit has the information for each detail line in the bought items.
+      """
+
+      @typedoc """
+      Information about the purchase units, each purchase unit has a reference
+      and a payment.
+      """
       field(:reference_id, :string, primary_key: true)
 
       embeds_one :payments, Payment, primary_key: false do
-        @moduledoc false
-        @typedoc false
+        @moduledoc """
+        The payment define the list of authorizations that are included inside
+        of the authorized order.
+        """
+
+        @typedoc """
+        The payment has only a list of authorizations, check `Authorization` for
+        further details.
+        """
         embeds_many(:authorizations, Authorization)
       end
     end

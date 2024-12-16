@@ -21,8 +21,14 @@ defmodule Paypal.Common.Error do
     field(:debug_id, :string, primary_key: true)
 
     embeds_many :details, Details, primary_key: false do
-      @moduledoc false
-      @typedoc false
+      @moduledoc """
+      Each detail implemented for the error.
+      """
+
+      @typedoc """
+      The information for each line of the error, it includes: field,
+      description, issue, location, and value.
+      """
 
       field(:field, :string)
       field(:description, :string)

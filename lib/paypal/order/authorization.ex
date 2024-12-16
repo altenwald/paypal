@@ -1,6 +1,6 @@
 defmodule Paypal.Order.Authorization do
   @moduledoc """
-  Authorization is the information embeded into the
+  Authorization is the information embebed into the
   `Paypal.Order.Authorized` for getting all of the information for the
   authorized payment.
   """
@@ -39,8 +39,10 @@ defmodule Paypal.Order.Authorization do
     field(:network_transaction_reference, :map)
 
     embeds_one :seller_protection, SellerProtection, primary_key: false do
-      @moduledoc false
-      @typedoc false
+      @moduledoc """
+      Seller protection gives us information about if the protection of the
+      seller is elegible and the categories for the disputes.
+      """
 
       @seller_protection_statuses [
         eligible: "ELIGIBLE",
@@ -48,9 +50,14 @@ defmodule Paypal.Order.Authorization do
         not_eligible: "NOT_ELIGIBLE"
       ]
 
+      @typedoc """
+      Seller protection gives us the eligibility of the seller and the kind
+      of disputes.
+      """
+
       field(:status, Ecto.Enum, values: @seller_protection_statuses)
       # XXX looks like the categories are specific but the documentation is
-      #     not listem them, so we are going to use `string` here.
+      #     not listen them, so we are going to use `string` here.
       field(:dispute_categories, {:array, :string})
     end
 

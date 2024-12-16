@@ -10,7 +10,7 @@ defmodule Paypal.Auth.Worker do
 
   @typedoc """
   The internal structure for the auth of Paypal is composed of
-  a `access` entry (see `Paypal.Auth.Access.t/0` for further information),
+  a `access` entry (see `Paypal.Auth.Access.t()` for further information),
   and `timer_ref`, a reference for the current and active timer.
   """
 

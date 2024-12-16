@@ -19,7 +19,7 @@ defmodule Paypal.Case do
   end
 
   defp endpoint_url(bypass) do
-    "http://localhost:#{bypass.port()}"
+    "http://localhost:#{bypass.port}"
   end
 
   def response(conn, code, data \\ nil)
