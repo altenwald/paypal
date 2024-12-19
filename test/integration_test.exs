@@ -70,6 +70,7 @@ defmodule Paypal.IntegrationTest do
           method: :get
         }
       ],
+      payment_source: %{"paypal" => %{}},
       status: :payer_action_required
     }
 
@@ -156,7 +157,17 @@ defmodule Paypal.IntegrationTest do
       payer: %Paypal.Order.Payer{
         payer_id: "JWEUL3HMBVGJ6",
         name: %{"given_name" => "test", "surname" => "buyer"},
-        email_address: "buyer@rich.com"
+        email_address: "buyer@rich.com",
+        address: %{"country_code" => "ES"}
+      },
+      payment_source: %{
+        "paypal" => %{
+          "account_id" => "JWEUL3HMBVGJ6",
+          "account_status" => "VERIFIED",
+          "address" => %{"country_code" => "ES"},
+          "email_address" => "buyer@rich.com",
+          "name" => %{"given_name" => "test", "surname" => "buyer"}
+        }
       },
       purchase_units: [
         %Paypal.Order.PurchaseUnit{
@@ -564,6 +575,7 @@ defmodule Paypal.IntegrationTest do
           method: :get
         }
       ],
+      payment_source: %{"paypal" => %{}},
       status: :payer_action_required
     }
 
@@ -650,7 +662,17 @@ defmodule Paypal.IntegrationTest do
       payer: %Paypal.Order.Payer{
         payer_id: "JWEUL3HMBVGJ6",
         name: %{"given_name" => "test", "surname" => "buyer"},
-        email_address: "buyer@rich.com"
+        email_address: "buyer@rich.com",
+        address: %{"country_code" => "ES"}
+      },
+      payment_source: %{
+        "paypal" => %{
+          "account_id" => "JWEUL3HMBVGJ6",
+          "account_status" => "VERIFIED",
+          "address" => %{"country_code" => "ES"},
+          "email_address" => "buyer@rich.com",
+          "name" => %{"given_name" => "test", "surname" => "buyer"}
+        }
       },
       purchase_units: [
         %Paypal.Order.PurchaseUnit{
@@ -1001,6 +1023,7 @@ defmodule Paypal.IntegrationTest do
           method: :get
         }
       ],
+      payment_source: %{"paypal" => %{}},
       status: :payer_action_required
     }
 
@@ -1099,10 +1122,62 @@ defmodule Paypal.IntegrationTest do
       payer: %Paypal.Order.Payer{
         payer_id: "JWEUL3HMBVGJ6",
         name: %{"given_name" => "test", "surname" => "buyer"},
-        email_address: "payment-buyer@altenwald.com"
+        email_address: "payment-buyer@altenwald.com",
+        address: %{"country_code" => "ES"}
+      },
+      payment_source: %{
+        "paypal" => %{
+          "account_id" => "JWEUL3HMBVGJ6",
+          "account_status" => "VERIFIED",
+          "address" => %{"country_code" => "ES"},
+          "email_address" => "payment-buyer@altenwald.com",
+          "name" => %{"given_name" => "test", "surname" => "buyer"}
+        }
       },
       purchase_units: [
-        %Paypal.Order.PurchaseUnit{}
+        %Paypal.Order.PurchaseUnit{
+          payments: %{
+            "captures" => [
+              %{
+                "amount" => %{"currency_code" => "EUR", "value" => "10.00"},
+                "create_time" => "2024-05-10T12:19:16Z",
+                "final_capture" => true,
+                "id" => "58A90337V3530010E",
+                "links" => [
+                  %{
+                    "href" =>
+                      "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E",
+                    "method" => "GET",
+                    "rel" => "self"
+                  },
+                  %{
+                    "href" =>
+                      "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E/refund",
+                    "method" => "POST",
+                    "rel" => "refund"
+                  },
+                  %{
+                    "href" =>
+                      "https://api.sandbox.paypal.com/v2/checkout/orders/7D653782TH669712A",
+                    "method" => "GET",
+                    "rel" => "up"
+                  }
+                ],
+                "seller_protection" => %{
+                  "dispute_categories" => ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"],
+                  "status" => "ELIGIBLE"
+                },
+                "seller_receivable_breakdown" => %{
+                  "gross_amount" => %{"currency_code" => "EUR", "value" => "10.00"},
+                  "net_amount" => %{"currency_code" => "EUR", "value" => "9.31"},
+                  "paypal_fee" => %{"currency_code" => "EUR", "value" => "0.69"}
+                },
+                "status" => "COMPLETED",
+                "update_time" => "2024-05-10T12:19:16Z"
+              }
+            ]
+          }
+        }
       ],
       status: :completed
     }

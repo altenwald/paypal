@@ -28,6 +28,8 @@ defmodule Paypal.Order.PurchaseUnit do
     embeds_many(:items, Item)
     embeds_one(:amount, CurrencyValue)
     # TODO
+    field(:payments, :map)
+    # TODO
     field(:payee, :map)
     # TODO
     field(:payment_instruction, :map)
@@ -47,6 +49,7 @@ defmodule Paypal.Order.PurchaseUnit do
     payment_instruction
     shipping
     supplementary_data
+    payments
   ]a
 
   @doc false

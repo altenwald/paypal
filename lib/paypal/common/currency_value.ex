@@ -4,7 +4,7 @@ defmodule Paypal.Common.CurrencyValue do
   as a JSON object that is including `currency_code` and `value`. But it's
   even more complex in other requests.
 
-  This struct contains the possibilites for all of these requests/responses.
+  This struct contains the possibilities for all of these requests/responses.
   """
   use TypedEctoSchema
   import Ecto.Changeset
