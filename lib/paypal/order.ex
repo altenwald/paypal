@@ -28,10 +28,10 @@ defmodule Paypal.Order do
   alias Paypal.Auth
   alias Paypal.Common.Error, as: OrderError
   alias Paypal.Order.Authorized
-  alias Paypal.Order.Authorized.PurchaseUnit
   alias Paypal.Order.Create
   alias Paypal.Order.ExperienceContext
   alias Paypal.Order.Info
+  alias Paypal.Order.PurchaseUnit
 
   adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
 
@@ -94,7 +94,7 @@ defmodule Paypal.Order do
   @doc """
   Create an order.
   """
-  @spec create(:capture | :authorize, PurchaseUnit.t(), ExperienceContext.t()) ::
+  @spec create(:capture | :authorize, [PurchaseUnit.t() | map()], ExperienceContext.t() | map()) ::
           {:ok, Info.t()} | {:error, OrderError.t() | String.t()}
   def create(intent, purchase_units, experience_context) do
     with {:ok, data} <- Create.changeset(%{intent: intent, purchase_units: purchase_units}),
