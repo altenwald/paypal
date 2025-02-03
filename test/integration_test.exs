@@ -521,6 +521,105 @@ defmodule Paypal.IntegrationTest do
     }
 
     assert {:ok, payment_captured} == Paypal.Payment.capture("27A385875N551040L")
+
+    Bypass.expect_once(
+      bypass,
+      "POST",
+      "/v2/payments/captures/5MS70068BM212023M/refund",
+      fn conn ->
+        response(conn, 201, %{
+          "id" => "58K15806CS993444T",
+          "amount" => %{
+            "currency_code" => "USD",
+            "value" => "89.00"
+          },
+          "seller_payable_breakdown" => %{
+            "gross_amount" => %{
+              "currency_code" => "USD",
+              "value" => "89.00"
+            },
+            "paypal_fee" => %{
+              "currency_code" => "USD",
+              "value" => "0.00"
+            },
+            "net_amount" => %{
+              "currency_code" => "USD",
+              "value" => "89.00"
+            },
+            "total_refunded_amount" => %{
+              "currency_code" => "USD",
+              "value" => "100.00"
+            }
+          },
+          "invoice_id" => "OrderInvoice-10_10_2024_12_58_20_pm",
+          "status" => "COMPLETED",
+          "create_time" => "2024-10-14T15:03:29-07:00",
+          "update_time" => "2024-10-14T15:03:29-07:00",
+          "links" => [
+            %{
+              "href" =>
+                "https://api.msmaster.qa.paypal.com/v2/payments/refunds/58K15806CS993444T",
+              "rel" => "self",
+              "method" => "GET"
+            },
+            %{
+              "href" =>
+                "https://api.msmaster.qa.paypal.com/v2/payments/captures/7TK53561YB803214S",
+              "rel" => "up",
+              "method" => "GET"
+            }
+          ]
+        })
+      end
+    )
+
+    payment_refund = %Paypal.Payment.Refund{
+      id: "58K15806CS993444T",
+      invoice_id: "OrderInvoice-10_10_2024_12_58_20_pm",
+      custom_id: nil,
+      links: [
+        %Paypal.Common.Link{
+          enc_type: nil,
+          href: "https://api.msmaster.qa.paypal.com/v2/payments/refunds/58K15806CS993444T",
+          rel: "self",
+          method: :get
+        },
+        %Paypal.Common.Link{
+          enc_type: nil,
+          href: "https://api.msmaster.qa.paypal.com/v2/payments/captures/7TK53561YB803214S",
+          rel: "up",
+          method: :get
+        }
+      ],
+      status: :completed,
+      status_details: nil,
+      seller_payable_breakdown: %{
+        "gross_amount" => %{
+          "currency_code" => "USD",
+          "value" => "89.00"
+        },
+        "paypal_fee" => %{
+          "currency_code" => "USD",
+          "value" => "0.00"
+        },
+        "net_amount" => %{
+          "currency_code" => "USD",
+          "value" => "89.00"
+        },
+        "total_refunded_amount" => %{
+          "currency_code" => "USD",
+          "value" => "100.00"
+        }
+      },
+      amount: %Paypal.Common.CurrencyValue{
+        currency_code: "USD",
+        value: Decimal.new("89.00")
+      },
+      create_time: "2024-10-14T15:03:29-07:00",
+      update_time: "2024-10-14T15:03:29-07:00"
+    }
+
+    assert {:ok, payment_refund} == Paypal.Payment.refund("5MS70068BM212023M")
   end
 
   test "order authorized and voided", %{bypass: bypass} do
