@@ -1136,44 +1136,45 @@ defmodule Paypal.IntegrationTest do
       },
       purchase_units: [
         %Paypal.Order.PurchaseUnit{
-          payments: %{
-            "captures" => [
-              %{
-                "amount" => %{"currency_code" => "EUR", "value" => "10.00"},
-                "create_time" => "2024-05-10T12:19:16Z",
-                "final_capture" => true,
-                "id" => "58A90337V3530010E",
-                "links" => [
-                  %{
-                    "href" =>
-                      "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E",
-                    "method" => "GET",
-                    "rel" => "self"
+          payments: %Paypal.Order.PurchaseUnit.PaymentCollection{
+            captures: [
+              %Paypal.Order.PurchaseUnit.Capture{
+                amount: %Paypal.Common.CurrencyValue{
+                  currency_code: "EUR",
+                  value: Decimal.new("10.00")
+                },
+                create_time: "2024-05-10T12:19:16Z",
+                final_capture: true,
+                id: "58A90337V3530010E",
+                links: [
+                  %Paypal.Common.Link{
+                    href: "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E",
+                    method: :get,
+                    rel: "self"
                   },
-                  %{
-                    "href" =>
+                  %Paypal.Common.Link{
+                    href:
                       "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E/refund",
-                    "method" => "POST",
-                    "rel" => "refund"
+                    method: :post,
+                    rel: "refund"
                   },
-                  %{
-                    "href" =>
-                      "https://api.sandbox.paypal.com/v2/checkout/orders/7D653782TH669712A",
-                    "method" => "GET",
-                    "rel" => "up"
+                  %Paypal.Common.Link{
+                    href: "https://api.sandbox.paypal.com/v2/checkout/orders/7D653782TH669712A",
+                    method: :get,
+                    rel: "up"
                   }
                 ],
-                "seller_protection" => %{
+                seller_protection: %{
                   "dispute_categories" => ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"],
                   "status" => "ELIGIBLE"
                 },
-                "seller_receivable_breakdown" => %{
+                seller_receivable_breakdown: %{
                   "gross_amount" => %{"currency_code" => "EUR", "value" => "10.00"},
                   "net_amount" => %{"currency_code" => "EUR", "value" => "9.31"},
                   "paypal_fee" => %{"currency_code" => "EUR", "value" => "0.69"}
                 },
-                "status" => "COMPLETED",
-                "update_time" => "2024-05-10T12:19:16Z"
+                status: "COMPLETED",
+                update_time: "2024-05-10T12:19:16Z"
               }
             ]
           }
