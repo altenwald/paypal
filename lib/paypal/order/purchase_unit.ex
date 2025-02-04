@@ -9,6 +9,7 @@ defmodule Paypal.Order.PurchaseUnit do
 
   alias Paypal.Common.CurrencyValue
   alias Paypal.Order.PurchaseUnit.Item
+  alias Paypal.Order.PurchaseUnit.PaymentCollection
 
   @derive Jason.Encoder
 
@@ -27,8 +28,7 @@ defmodule Paypal.Order.PurchaseUnit do
     field(:soft_descriptor, :string)
     embeds_many(:items, Item)
     embeds_one(:amount, CurrencyValue)
-    # TODO
-    field(:payments, :map)
+    embeds_one(:payments, PaymentCollection)
     # TODO
     field(:payee, :map)
     # TODO
@@ -49,7 +49,6 @@ defmodule Paypal.Order.PurchaseUnit do
     payment_instruction
     shipping
     supplementary_data
-    payments
   ]a
 
   @doc false
@@ -58,6 +57,7 @@ defmodule Paypal.Order.PurchaseUnit do
     |> cast(params, @fields)
     |> cast_embed(:amount, required: true)
     |> cast_embed(:items)
+    |> cast_embed(:payments)
     |> validate_length(:reference_id, min: 1, max: 256)
     |> validate_length(:description, min: 1, max: 127)
     |> validate_length(:custom_id, min: 1, max: 127)

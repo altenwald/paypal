@@ -521,6 +521,105 @@ defmodule Paypal.IntegrationTest do
     }
 
     assert {:ok, payment_captured} == Paypal.Payment.capture("27A385875N551040L")
+
+    Bypass.expect_once(
+      bypass,
+      "POST",
+      "/v2/payments/captures/5MS70068BM212023M/refund",
+      fn conn ->
+        response(conn, 201, %{
+          "id" => "58K15806CS993444T",
+          "amount" => %{
+            "currency_code" => "USD",
+            "value" => "89.00"
+          },
+          "seller_payable_breakdown" => %{
+            "gross_amount" => %{
+              "currency_code" => "USD",
+              "value" => "89.00"
+            },
+            "paypal_fee" => %{
+              "currency_code" => "USD",
+              "value" => "0.00"
+            },
+            "net_amount" => %{
+              "currency_code" => "USD",
+              "value" => "89.00"
+            },
+            "total_refunded_amount" => %{
+              "currency_code" => "USD",
+              "value" => "100.00"
+            }
+          },
+          "invoice_id" => "OrderInvoice-10_10_2024_12_58_20_pm",
+          "status" => "COMPLETED",
+          "create_time" => "2024-10-14T15:03:29-07:00",
+          "update_time" => "2024-10-14T15:03:29-07:00",
+          "links" => [
+            %{
+              "href" =>
+                "https://api.msmaster.qa.paypal.com/v2/payments/refunds/58K15806CS993444T",
+              "rel" => "self",
+              "method" => "GET"
+            },
+            %{
+              "href" =>
+                "https://api.msmaster.qa.paypal.com/v2/payments/captures/7TK53561YB803214S",
+              "rel" => "up",
+              "method" => "GET"
+            }
+          ]
+        })
+      end
+    )
+
+    payment_refund = %Paypal.Payment.Refund{
+      id: "58K15806CS993444T",
+      invoice_id: "OrderInvoice-10_10_2024_12_58_20_pm",
+      custom_id: nil,
+      links: [
+        %Paypal.Common.Link{
+          enc_type: nil,
+          href: "https://api.msmaster.qa.paypal.com/v2/payments/refunds/58K15806CS993444T",
+          rel: "self",
+          method: :get
+        },
+        %Paypal.Common.Link{
+          enc_type: nil,
+          href: "https://api.msmaster.qa.paypal.com/v2/payments/captures/7TK53561YB803214S",
+          rel: "up",
+          method: :get
+        }
+      ],
+      status: :completed,
+      status_details: nil,
+      seller_payable_breakdown: %{
+        "gross_amount" => %{
+          "currency_code" => "USD",
+          "value" => "89.00"
+        },
+        "paypal_fee" => %{
+          "currency_code" => "USD",
+          "value" => "0.00"
+        },
+        "net_amount" => %{
+          "currency_code" => "USD",
+          "value" => "89.00"
+        },
+        "total_refunded_amount" => %{
+          "currency_code" => "USD",
+          "value" => "100.00"
+        }
+      },
+      amount: %Paypal.Common.CurrencyValue{
+        currency_code: "USD",
+        value: Decimal.new("89.00")
+      },
+      create_time: "2024-10-14T15:03:29-07:00",
+      update_time: "2024-10-14T15:03:29-07:00"
+    }
+
+    assert {:ok, payment_refund} == Paypal.Payment.refund("5MS70068BM212023M")
   end
 
   test "order authorized and voided", %{bypass: bypass} do
@@ -1136,44 +1235,45 @@ defmodule Paypal.IntegrationTest do
       },
       purchase_units: [
         %Paypal.Order.PurchaseUnit{
-          payments: %{
-            "captures" => [
-              %{
-                "amount" => %{"currency_code" => "EUR", "value" => "10.00"},
-                "create_time" => "2024-05-10T12:19:16Z",
-                "final_capture" => true,
-                "id" => "58A90337V3530010E",
-                "links" => [
-                  %{
-                    "href" =>
-                      "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E",
-                    "method" => "GET",
-                    "rel" => "self"
+          payments: %Paypal.Order.PurchaseUnit.PaymentCollection{
+            captures: [
+              %Paypal.Order.PurchaseUnit.Capture{
+                amount: %Paypal.Common.CurrencyValue{
+                  currency_code: "EUR",
+                  value: Decimal.new("10.00")
+                },
+                create_time: "2024-05-10T12:19:16Z",
+                final_capture: true,
+                id: "58A90337V3530010E",
+                links: [
+                  %Paypal.Common.Link{
+                    href: "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E",
+                    method: :get,
+                    rel: "self"
                   },
-                  %{
-                    "href" =>
+                  %Paypal.Common.Link{
+                    href:
                       "https://api.sandbox.paypal.com/v2/payments/captures/58A90337V3530010E/refund",
-                    "method" => "POST",
-                    "rel" => "refund"
+                    method: :post,
+                    rel: "refund"
                   },
-                  %{
-                    "href" =>
-                      "https://api.sandbox.paypal.com/v2/checkout/orders/7D653782TH669712A",
-                    "method" => "GET",
-                    "rel" => "up"
+                  %Paypal.Common.Link{
+                    href: "https://api.sandbox.paypal.com/v2/checkout/orders/7D653782TH669712A",
+                    method: :get,
+                    rel: "up"
                   }
                 ],
-                "seller_protection" => %{
+                seller_protection: %{
                   "dispute_categories" => ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"],
                   "status" => "ELIGIBLE"
                 },
-                "seller_receivable_breakdown" => %{
+                seller_receivable_breakdown: %{
                   "gross_amount" => %{"currency_code" => "EUR", "value" => "10.00"},
                   "net_amount" => %{"currency_code" => "EUR", "value" => "9.31"},
                   "paypal_fee" => %{"currency_code" => "EUR", "value" => "0.69"}
                 },
-                "status" => "COMPLETED",
-                "update_time" => "2024-05-10T12:19:16Z"
+                status: "COMPLETED",
+                update_time: "2024-05-10T12:19:16Z"
               }
             ]
           }
