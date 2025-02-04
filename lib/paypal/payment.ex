@@ -80,8 +80,8 @@ defmodule Paypal.Payment do
     end
   end
 
-  def refund(id) do
-    case post("/captures/#{id}/refund", "") do
+  def refund(id, body \\ "") do
+    case post("/captures/#{id}/refund", body) do
       {:ok, %_{status: code, body: response}} when code in 200..299 ->
         {:ok, Refund.cast(response)}
 
