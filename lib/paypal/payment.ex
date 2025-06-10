@@ -11,6 +11,8 @@ defmodule Paypal.Payment do
   alias Paypal.Common.Error, as: PaymentError
   alias Paypal.Payment.Captured
   alias Paypal.Payment.Info
+  alias Paypal.Payment.Refund
+  alias Paypal.Payment.RefundRequest
 
   adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
 
@@ -70,6 +72,21 @@ defmodule Paypal.Payment do
     case post("/authorizations/#{id}/capture", "") do
       {:ok, %_{status: code, body: response}} when code in 200..299 ->
         {:ok, Captured.cast(response)}
+
+      {:ok, %_{body: response}} ->
+        {:error, PaymentError.cast(response)}
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  @spec refund(String.t(), RefundRequest.t() | map()) ::
+          {:ok, Info.t()} | {:error, PaymentError.t() | String.t()}
+  def(refund(id, body \\ %{})) do
+    case post("/captures/#{id}/refund", body |> RefundRequest.cast() |> Jason.encode!()) do
+      {:ok, %_{status: code, body: response}} when code in 200..299 ->
+        {:ok, Refund.cast(response)}
 
       {:ok, %_{body: response}} ->
         {:error, PaymentError.cast(response)}
