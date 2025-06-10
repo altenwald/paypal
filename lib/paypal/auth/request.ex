@@ -4,30 +4,34 @@ defmodule Paypal.Auth.Request do
   helps to generate a token time to time (before it's expired) and ensure
   we have always the correct one.
   """
-  use Tesla, only: [:post], docs: false
-
   require Logger
 
-  adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
+  defp client do
+    Tesla.client(middleware(), adapter())
+  end
 
-  plug(Tesla.Middleware.Logger,
-    format: "$method $url ===> $status / time=$time",
-    log_level: :debug
-  )
+  defp middleware do
+    [
+      {Tesla.Middleware.Logger,
+       format: "$method $url ===> $status / time=$time", log_level: :debug},
+      {Tesla.Middleware.BaseUrl, Application.get_env(:paypal, :url)},
+      {Tesla.Middleware.Headers,
+       [
+         {"content-type", "application/x-www-form-urlencoded"},
+         {"accept-language", "en_US"}
+       ]},
+      {Tesla.Middleware.BasicAuth,
+       username: Application.get_env(:paypal, :client_id),
+       password: Application.get_env(:paypal, :secret)},
+      Tesla.Middleware.DecodeJson
+    ]
+  end
 
-  plug(Tesla.Middleware.BaseUrl, Application.get_env(:paypal, :url))
+  defp adapter do
+    {Tesla.Adapter.Finch, name: Paypal.Finch}
+  end
 
-  plug(Tesla.Middleware.Headers, [
-    {"content-type", "application/x-www-form-urlencoded"},
-    {"accept-language", "en_US"}
-  ])
-
-  plug(Tesla.Middleware.BasicAuth,
-    username: Application.get_env(:paypal, :client_id),
-    password: Application.get_env(:paypal, :secret)
-  )
-
-  plug(Tesla.Middleware.DecodeJson)
+  defp post(uri, body), do: Tesla.post(client(), uri, body)
 
   @doc """
   Perform the authorization and retrieve the response.

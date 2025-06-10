@@ -21,8 +21,6 @@ defmodule Paypal.Order do
   If you are interested on the authorization, check `Paypal.Payment` module for
   further information.
   """
-  use Tesla, only: [:get, :post], docs: false
-
   require Logger
 
   alias Paypal.Auth
@@ -33,22 +31,31 @@ defmodule Paypal.Order do
   alias Paypal.Order.Info
   alias Paypal.Order.PurchaseUnit
 
-  adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
+  defp client do
+    Tesla.client(middleware(), adapter())
+  end
 
-  plug(Tesla.Middleware.Logger,
-    format: "$method /v2/checkout$url ===> $status / time=$time",
-    log_level: :debug
-  )
+  defp middleware do
+    [
+      {Tesla.Middleware.Logger,
+       format: "$method /v2/checkout$url ===> $status / time=$time", log_level: :debug},
+      {Tesla.Middleware.BaseUrl, Application.get_env(:paypal, :url) <> "/v2/checkout"},
+      {Tesla.Middleware.Headers,
+       [
+         {"content-type", "application/json"},
+         {"accept-language", "en_US"},
+         {"authorization", "bearer #{Auth.get_token!()}"}
+       ]},
+      Tesla.Middleware.JSON
+    ]
+  end
 
-  plug(Tesla.Middleware.BaseUrl, Application.get_env(:paypal, :url) <> "/v2/checkout")
+  defp adapter do
+    {Tesla.Adapter.Finch, name: Paypal.Finch}
+  end
 
-  plug(Tesla.Middleware.Headers, [
-    {"content-type", "application/json"},
-    {"accept-language", "en_US"},
-    {"authorization", "bearer #{Auth.get_token!()}"}
-  ])
-
-  plug(Tesla.Middleware.JSON)
+  defp get(uri), do: Tesla.get(client(), uri)
+  defp post(uri, body), do: Tesla.post(client(), uri, body)
 
   @doc """
   Statuses for the order. The order is following different states, we could

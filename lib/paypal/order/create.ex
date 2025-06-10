@@ -44,18 +44,4 @@ defmodule Paypal.Order.Create do
         {:error, traverse_errors(changeset)}
     end
   end
-
-  defp clean_data(map) when is_map(map) and not is_struct(map) do
-    map
-    |> Map.reject(fn {_key, value} -> value in [nil, []] end)
-    |> Map.new(fn {key, value} -> {key, clean_data(value)} end)
-  end
-
-  defp clean_data(list) when is_list(list) do
-    list
-    |> Enum.reject(&(&1 in [nil, []]))
-    |> Enum.map(&clean_data/1)
-  end
-
-  defp clean_data(otherwise), do: otherwise
 end

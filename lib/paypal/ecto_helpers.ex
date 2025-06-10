@@ -16,4 +16,22 @@ defmodule Paypal.EctoHelpers do
       end)
     end)
   end
+
+  @doc """
+  Perform a cleaning of a struct converted into a map for all of the
+  entries that has no content.
+  """
+  def clean_data(map) when is_map(map) and not is_struct(map) do
+    map
+    |> Map.reject(fn {_key, value} -> value in [nil, []] end)
+    |> Map.new(fn {key, value} -> {key, clean_data(value)} end)
+  end
+
+  def clean_data(list) when is_list(list) do
+    list
+    |> Enum.reject(&(&1 in [nil, []]))
+    |> Enum.map(&clean_data/1)
+  end
+
+  def clean_data(otherwise), do: otherwise
 end

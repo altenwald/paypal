@@ -1,20 +1,26 @@
 defmodule Paypal.Payment.RefundRequest do
   @moduledoc """
-  Request object that Refunds a captured payment, by ID. For a full refund, include an empty
-  request body. For a partial refund, include an `amount` object in
-  the request body.
+  Request object that Refunds a captured payment, by ID. For a full refund,
+  include an empty request body. For a partial refund, include an `amount`
+  object in the request body.
 
   ## Fields
 
-    - `amount` - The currency and amount for a financial transaction, such as a balance or payment due.
-    - `custom_id` - The API caller-provided external ID. Used to reconcile API caller-initiated transactions with PayPal transactions.
+    - `amount` - The currency and amount for a financial transaction, such as
+      a balance or payment due.
+    - `custom_id` - The API caller-provided external ID. Used to reconcile API
+      caller-initiated transactions with PayPal transactions.
     - `invoice_id` - The API caller-provided external invoice ID for this order.
-    - `note_to_payer` - The reason for the refund. Appears in both the payer's transaction history and the emails that the payer receives.
-    - `payment_instruction` - Any additional payments instructions during refund payment processing.
+    - `note_to_payer` - The reason for the refund. Appears in both the payer's
+      transaction history and the emails that the payer receives.
+    - `payment_instruction` - Any additional payments instructions during refund
+      payment processing.
   """
-
   use TypedEctoSchema
+
   import Ecto.Changeset
+  import Paypal.EctoHelpers
+
   alias Paypal.Common.CurrencyValue
 
   @derive Jason.Encoder
@@ -40,10 +46,16 @@ defmodule Paypal.Payment.RefundRequest do
     model
     |> cast(params, @fields)
     |> cast_embed(:amount)
-  end
+    |> case do
+      %Ecto.Changeset{valid?: true} = changeset ->
+        {:ok,
+         changeset
+         |> apply_changes()
+         |> Ecto.embedded_dump(:json)
+         |> clean_data()}
 
-  @doc false
-  def cast(params) do
-    Ecto.embedded_load(__MODULE__, params, :json)
+      %Ecto.Changeset{} = changeset ->
+        {:error, traverse_errors(changeset)}
+    end
   end
 end

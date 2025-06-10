@@ -3,8 +3,6 @@ defmodule Paypal.Payment do
   Perform payment actions for Paypal. The payments are authorized orders.
   You can see further information via `Paypal.Order`.
   """
-  use Tesla, only: [:get, :post], docs: false
-
   require Logger
 
   alias Paypal.Auth
@@ -14,22 +12,31 @@ defmodule Paypal.Payment do
   alias Paypal.Payment.Refund
   alias Paypal.Payment.RefundRequest
 
-  adapter({Tesla.Adapter.Finch, name: Paypal.Finch})
+  defp client do
+    Tesla.client(middleware(), adapter())
+  end
 
-  plug(Tesla.Middleware.Logger,
-    format: "$method /v2/payments$url ===> $status / time=$time",
-    log_level: :debug
-  )
+  defp middleware do
+    [
+      {Tesla.Middleware.Logger,
+       format: "$method /v2/payments$url ===> $status / time=$time", log_level: :debug},
+      {Tesla.Middleware.BaseUrl, Application.get_env(:paypal, :url) <> "/v2/payments"},
+      {Tesla.Middleware.Headers,
+       [
+         {"content-type", "application/json"},
+         {"accept-language", "en_US"},
+         {"authorization", "bearer #{Auth.get_token!()}"}
+       ]},
+      Tesla.Middleware.JSON
+    ]
+  end
 
-  plug(Tesla.Middleware.BaseUrl, Application.get_env(:paypal, :url) <> "/v2/payments")
+  defp adapter do
+    {Tesla.Adapter.Finch, name: Paypal.Finch}
+  end
 
-  plug(Tesla.Middleware.Headers, [
-    {"content-type", "application/json"},
-    {"accept-language", "en_US"},
-    {"authorization", "bearer #{Auth.get_token!()}"}
-  ])
-
-  plug(Tesla.Middleware.JSON)
+  defp get(uri), do: Tesla.get(client(), uri)
+  defp post(uri, body), do: Tesla.post(client(), uri, body)
 
   @doc """
   Show information about the authorized order.
@@ -81,13 +88,15 @@ defmodule Paypal.Payment do
     end
   end
 
-  @spec refund(String.t(), RefundRequest.t() | map()) ::
-          {:ok, Info.t()} | {:error, PaymentError.t() | String.t()}
-  def(refund(id, body \\ %{})) do
-    case post("/captures/#{id}/refund", body |> RefundRequest.cast() |> Jason.encode!()) do
-      {:ok, %_{status: code, body: response}} when code in 200..299 ->
-        {:ok, Refund.cast(response)}
-
+  @doc """
+  Performs a refund of the capture that was captured previously.
+  """
+  def refund(id, body \\ %{}) do
+    with {:ok, data} <- RefundRequest.changeset(body),
+         {:ok, %_{status: code, body: response}} when code in 200..299 <-
+           post("/captures/#{id}/refund", data) do
+      {:ok, Refund.cast(response)}
+    else
       {:ok, %_{body: response}} ->
         {:error, PaymentError.cast(response)}
 
