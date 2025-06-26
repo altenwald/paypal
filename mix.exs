@@ -1,7 +1,7 @@
 defmodule Paypal.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
 
   def project do
     [
@@ -137,8 +137,8 @@ defmodule Paypal.MixProject do
       maintainers: ["Manuel Rubio"],
       licenses: ["MIT"],
       links: %{
-        "Github" => "https://github.com/altenwald/paypal",
-        "Docs" => "https://hexdocs.pm/paypal"
+        "Paypal v2 Docs" => "https://developer.paypal.com/api/rest/",
+        "Github" => "https://github.com/altenwald/paypal"
       }
     ]
   end
