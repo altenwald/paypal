@@ -2,19 +2,8 @@ defmodule Paypal.IntegrationTest do
   use Paypal.Case
   alias Paypal.Auth.Worker, as: AuthWorker
 
-  defp wait_for(name) do
-    unless Process.whereis(name) do
-      Process.sleep(50)
-      wait_for(name)
-    end
-  end
-
   setup do
-    if Process.whereis(Paypal.Auth.Worker) do
-      GenServer.stop(Paypal.Auth.Worker)
-      wait_for(Paypal.Auth.Worker)
-    end
-
+    clear_token()
     :ok
   end
 

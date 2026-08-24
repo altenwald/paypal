@@ -20,10 +20,13 @@ erl_crash.dump
 *.ez
 
 # Ignore package tarball (built via "mix hex.build").
-netim-*.tar
+paypal-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Dialyzer PLTs
+/.plts/
 
 # Avoid include sensitive data in the repository
 /.envrc

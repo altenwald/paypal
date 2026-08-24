@@ -1,23 +1,35 @@
 defmodule Paypal.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.2.0"
+  @source_url "https://github.com/altenwald/paypal"
 
   def project do
     [
       app: :paypal,
       version: @version,
-      elixir: "~> 1.15",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      dialyzer: dialyzer(),
       name: "Paypal",
-      description: "Paypal API v2",
+      description: "Paypal API v2 & Subscriptions API with Req",
       docs: docs(),
       package: package(),
+      test_coverage: [summary: [threshold: 90]],
       preferred_cli_env: [
         check: :test
       ]
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_local_path: ".plts",
+      plt_core_path: ".plts",
+      plt_add_apps: [:inets, :ssl, :public_key, :logger],
+      flags: [:error_handling, :unknown]
     ]
   end
 
@@ -62,7 +74,7 @@ defmodule Paypal.MixProject do
 
   defp deps do
     [
-      {:tesla, "~> 1.9"},
+      {:req, "~> 0.5"},
       {:finch, "~> 0.17"},
       {:countries, "~> 1.6"},
       {:money, "~> 1.12"},
@@ -85,12 +97,8 @@ defmodule Paypal.MixProject do
       main: "Paypal",
       source_ref: "v#{@version}",
       canonical: "https://hexdocs.pm/paypal",
-      # logo: "guides/images/paypal.png",
-      # extra_section: "GUIDES",
-      source_url: "https://github.com/altenwald/paypal",
-      # extras: extras(),
-      # groups_for_extras: groups_for_extras(),
-      # before_closing_head_tag: &before_closing_head_tag/1,
+      source_url: @source_url,
+      extras: ["README.md", "COPYING"],
       before_closing_body_tag: &mermaid/1,
       groups_for_modules: [
         Auth: [
@@ -120,7 +128,30 @@ defmodule Paypal.MixProject do
           Paypal.Payment.Refund,
           Paypal.Payment.RefundRequest
         ],
+        Subscription: [
+          Paypal.Subscription,
+          Paypal.Subscription.Info,
+          Paypal.Subscription.Create,
+          Paypal.Subscription.Subscriber,
+          Paypal.Subscription.BillingInfo,
+          Paypal.Subscription.ReviseResponse,
+          Paypal.Subscription.Capture,
+          Paypal.Subscription.Transaction,
+          Paypal.Subscription.Transactions,
+          Paypal.Subscription.Plan,
+          Paypal.Subscription.Plan.Info,
+          Paypal.Subscription.Plan.Create,
+          Paypal.Subscription.Plan.BillingCycle,
+          Paypal.Subscription.Plan.PaymentPreferences,
+          Paypal.Subscription.Plan.Taxes,
+          Paypal.Subscription.Plan.List,
+          Paypal.Subscription.Product,
+          Paypal.Subscription.Product.Info,
+          Paypal.Subscription.Product.Create,
+          Paypal.Subscription.Product.List
+        ],
         "Common and Helpers": [
+          Paypal.Client,
           Paypal.Common.CurrencyValue,
           Paypal.Common.Error,
           Paypal.Common.Link,
@@ -133,12 +164,13 @@ defmodule Paypal.MixProject do
 
   defp package do
     [
-      files: ~w[ lib mix.* *.md COPYING ],
+      files: ~w[ lib mix.exs README* COPYING* LICENSE* .formatter.exs ],
       maintainers: ["Manuel Rubio"],
       licenses: ["MIT"],
       links: %{
         "Paypal v2 Docs" => "https://developer.paypal.com/api/rest/",
-        "Github" => "https://github.com/altenwald/paypal"
+        "Paypal Subscriptions Docs" => "https://developer.paypal.com/docs/api/subscriptions/v1/",
+        "GitHub" => @source_url
       }
     ]
   end

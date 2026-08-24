@@ -1,11 +1,10 @@
 defmodule Paypal.Auth do
   @moduledoc """
-  Paypal requires to have an authenticated token to interact. This module
-  helps to generate a token time to time (before it's expired) and ensure
-  we have always the correct one.
+  PayPal requires an authenticated OAuth2 token to interact with the API. This module
+  helps manage and retrieve tokens, ensuring the token is kept active and automatically
+  refreshed in the background before expiry.
 
-  To achieve this, we need a bit of configuration. We could provide this
-  adding in our project the following block:
+  ## Configuration
 
   ```elixir
   config :paypal,
@@ -14,30 +13,23 @@ defmodule Paypal.Auth do
     secret: System.get_env("PAYPAL_SECRET")
   ```
 
-  Because the content of the `client_id` and `secret` are sensitive, I prefer
-  provide these values using the environment variables, but if you need to
-  put them in your config file for your project, go ahead.
+  The configuration parameters are:
 
-  The configuration parameters are the following:
-
-  - `url` is the URL where we have to perform the base requests. Paypal has
-    two different URLs and you can see in the example above the one that's
-    in use for the sandbox/testing environment. This is the one you should
-    use for development.
-  - `client_id` is one of the data Paypal provide us when we generate the
-    API data to be connected to them.
-  - `secret` this is the most sensitive one. If that's unveil, go to the
-    Paypal website and regenerate a new one!
+  - `url` - The base URL for PayPal API requests (sandbox or production).
+  - `client_id` - The client ID provided in the PayPal Developer Dashboard.
+  - `secret` - The secret key provided in the PayPal Developer Dashboard.
   """
 
   @doc """
   Get active token.
   """
+  @spec get_token() :: {:ok, String.t()} | {:error, any()}
   defdelegate get_token, to: Paypal.Auth.Worker
 
   @doc """
   Get token and fails if there's no token.
   """
+  @spec get_token!() :: String.t()
   def get_token! do
     {:ok, access_token} = get_token()
     access_token

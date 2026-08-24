@@ -1,44 +1,40 @@
 defmodule Paypal.Auth.Request do
   @moduledoc """
-  Paypal requires to have an authenticated token to interact. This module
-  helps to generate a token time to time (before it's expired) and ensure
-  we have always the correct one.
+  Performs OAuth2 authentication against PayPal to retrieve an access token.
   """
   require Logger
-
-  defp client do
-    Tesla.client(middleware(), adapter())
-  end
-
-  defp middleware do
-    [
-      {Tesla.Middleware.Logger,
-       format: "$method $url ===> $status / time=$time", log_level: :debug},
-      {Tesla.Middleware.BaseUrl, Application.get_env(:paypal, :url)},
-      {Tesla.Middleware.Headers,
-       [
-         {"content-type", "application/x-www-form-urlencoded"},
-         {"accept-language", "en_US"}
-       ]},
-      {Tesla.Middleware.BasicAuth,
-       username: Application.get_env(:paypal, :client_id),
-       password: Application.get_env(:paypal, :secret)},
-      Tesla.Middleware.DecodeJson
-    ]
-  end
-
-  defp adapter do
-    {Tesla.Adapter.Finch, name: Paypal.Finch}
-  end
-
-  defp post(uri, body), do: Tesla.post(client(), uri, body)
 
   @doc """
   Perform the authorization and retrieve the response.
   """
+  @spec auth() :: {:ok, map()} | {:error, any()}
   def auth do
-    with {:ok, %_{body: response}} <- post("/v1/oauth2/token", "grant_type=client_credentials") do
-      {:ok, response}
+    base_url = Application.get_env(:paypal, :url, "https://api-m.sandbox.paypal.com")
+    client_id = Application.get_env(:paypal, :client_id)
+    secret = Application.get_env(:paypal, :secret)
+
+    req =
+      [
+        base_url: base_url,
+        auth: {:basic, "#{client_id}:#{secret}"},
+        headers: [
+          {"content-type", "application/x-www-form-urlencoded"},
+          {"accept-language", "en_US"}
+        ],
+        finch: [name: Paypal.Finch]
+      ]
+      |> Keyword.merge(Application.get_env(:paypal, :req_options, []))
+      |> Req.new()
+
+    case Req.post(req, url: "/v1/oauth2/token", form: [grant_type: "client_credentials"]) do
+      {:ok, %Req.Response{status: 200, body: body}} when is_map(body) ->
+        {:ok, body}
+
+      {:ok, %Req.Response{status: status, body: body}} ->
+        {:error, {:bad_status, status, body}}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 end

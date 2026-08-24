@@ -43,7 +43,13 @@ defmodule Paypal.Common.Error do
   end
 
   @doc false
-  def cast(params) do
+  def cast(params) when is_map(params) do
     Ecto.embedded_load(__MODULE__, params, :json)
   end
+
+  def cast(params) when is_binary(params) do
+    %__MODULE__{message: params}
+  end
+
+  def cast(_), do: %__MODULE__{}
 end
