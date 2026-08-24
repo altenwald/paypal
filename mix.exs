@@ -164,7 +164,7 @@ defmodule Paypal.MixProject do
 
   defp package do
     [
-      files: ~w[ lib mix.exs README* COPYING* LICENSE* .formatter.exs ],
+      files: ~w[ lib mix.exs README* COPYING* .formatter.exs ],
       maintainers: ["Manuel Rubio"],
       licenses: ["MIT"],
       links: %{
