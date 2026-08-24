@@ -4,8 +4,8 @@ defmodule Paypal.Case do
   """
 
   def paypal_setup(_args) do
-    bypass = Bypass.open()
-    Application.put_env(:paypal, :url, endpoint_url(bypass))
+    bypass = Passby.open()
+    Application.put_env(:paypal, :url, bypass.url)
     set_token("ACCESSTOKEN")
     {:ok, bypass: bypass}
   end
@@ -50,19 +50,15 @@ defmodule Paypal.Case do
     end
   end
 
-  defp endpoint_url(bypass) do
-    "http://localhost:#{bypass.port}"
-  end
-
   def response(conn, code, data \\ nil)
 
   def response(conn, code, nil) do
-    Plug.Conn.resp(conn, code, [])
+    Passby.resp(conn, code, "")
   end
 
   def response(conn, code, data) do
     conn
-    |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.resp(code, Jason.encode!(data))
+    |> Passby.put_resp_header("content-type", "application/json")
+    |> Passby.resp(code, Jason.encode!(data))
   end
 end

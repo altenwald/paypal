@@ -80,7 +80,7 @@ defmodule Paypal.MixProject do
       {:money, "~> 1.12"},
       {:typed_ecto_schema, "~> 0.4"},
       {:ecto, "~> 3.9"},
-      {:bypass, "~> 2.1", only: :test},
+      {:passby, "~> 0.1.1", only: :test},
 
       # only for dev
       {:dialyxir, ">= 0.0.0", only: [:dev, :test], runtime: false},

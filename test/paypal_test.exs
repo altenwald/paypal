@@ -21,8 +21,8 @@ defmodule Paypal.PaypalTest do
   test "Paypal.Auth.Worker handle_continue with error", %{bypass: bypass} do
     clear_token()
 
-    Bypass.expect(bypass, "POST", "/v1/oauth2/token", fn conn ->
-      Plug.Conn.resp(conn, 500, "Internal Server Error")
+    Passby.expect(bypass, "POST", "/v1/oauth2/token", fn conn ->
+      Passby.resp(conn, 500, "Internal Server Error")
     end)
 
     if pid = Process.whereis(AuthWorker) do

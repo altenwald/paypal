@@ -8,7 +8,7 @@ defmodule Paypal.IntegrationTest do
   end
 
   test "order authorized and captured", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/v1/oauth2/token", fn %Plug.Conn{} = conn ->
+    Passby.expect_once(bypass, "POST", "/v1/oauth2/token", fn conn ->
       response(conn, 200, %{
         "access_token" => "ACCESSTOKEN",
         "app_id" => "APP-ID",
@@ -25,7 +25,7 @@ defmodule Paypal.IntegrationTest do
     AuthWorker.refresh()
     assert "ACCESSTOKEN" == Paypal.Auth.get_token!()
 
-    Bypass.expect_once(bypass, "POST", "/v2/checkout/orders", fn conn ->
+    Passby.expect_once(bypass, "POST", "/v2/checkout/orders", fn conn ->
       response(conn, 200, %{
         "id" => "5UY53123AX394662R",
         "links" => [
@@ -70,7 +70,7 @@ defmodule Paypal.IntegrationTest do
                %{"return_url" => "https://return.com", "cancel_url" => "https://cancel.com"}
              )
 
-    Bypass.expect_once(bypass, "GET", "/v2/checkout/orders/5UY53123AX394662R", fn conn ->
+    Passby.expect_once(bypass, "GET", "/v2/checkout/orders/5UY53123AX394662R", fn conn ->
       response(conn, 200, %{
         "create_time" => "2024-05-08T16:25:33Z",
         "id" => "5UY53123AX394662R",
@@ -176,7 +176,7 @@ defmodule Paypal.IntegrationTest do
 
     assert {:ok, info} == Paypal.Order.show(order.id)
 
-    Bypass.expect_once(
+    Passby.expect_once(
       bypass,
       "POST",
       "/v2/checkout/orders/5UY53123AX394662R/authorize",
@@ -347,7 +347,7 @@ defmodule Paypal.IntegrationTest do
 
     assert {:ok, authorized} == Paypal.Order.authorize(order.id)
 
-    Bypass.expect_once(bypass, "GET", "/v2/payments/authorizations/27A385875N551040L", fn conn ->
+    Passby.expect_once(bypass, "GET", "/v2/payments/authorizations/27A385875N551040L", fn conn ->
       response(conn, 200, %{
         "amount" => %{"currency_code" => "EUR", "value" => "10.00"},
         "create_time" => "2024-05-08T22:22:22Z",
@@ -445,7 +445,7 @@ defmodule Paypal.IntegrationTest do
 
     assert {:ok, payment_info} == Paypal.Payment.show("27A385875N551040L")
 
-    Bypass.expect_once(
+    Passby.expect_once(
       bypass,
       "POST",
       "/v2/payments/authorizations/27A385875N551040L/capture",
@@ -511,7 +511,7 @@ defmodule Paypal.IntegrationTest do
 
     assert {:ok, payment_captured} == Paypal.Payment.capture("27A385875N551040L")
 
-    Bypass.expect_once(
+    Passby.expect_once(
       bypass,
       "POST",
       "/v2/payments/captures/5MS70068BM212023M/refund",
@@ -612,7 +612,7 @@ defmodule Paypal.IntegrationTest do
   end
 
   test "order authorized and voided", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/v1/oauth2/token", fn %Plug.Conn{} = conn ->
+    Passby.expect_once(bypass, "POST", "/v1/oauth2/token", fn conn ->
       response(conn, 200, %{
         "access_token" => "ACCESSTOKEN",
         "app_id" => "APP-ID",
@@ -629,7 +629,7 @@ defmodule Paypal.IntegrationTest do
     AuthWorker.refresh()
     assert "ACCESSTOKEN" == Paypal.Auth.get_token!()
 
-    Bypass.expect_once(bypass, "POST", "/v2/checkout/orders", fn conn ->
+    Passby.expect_once(bypass, "POST", "/v2/checkout/orders", fn conn ->
       response(conn, 200, %{
         "id" => "5UY53123AX394662R",
         "links" => [
@@ -674,7 +674,7 @@ defmodule Paypal.IntegrationTest do
                %{"return_url" => "https://return.com", "cancel_url" => "https://cancel.com"}
              )
 
-    Bypass.expect_once(bypass, "GET", "/v2/checkout/orders/5UY53123AX394662R", fn conn ->
+    Passby.expect_once(bypass, "GET", "/v2/checkout/orders/5UY53123AX394662R", fn conn ->
       response(conn, 200, %{
         "create_time" => "2024-05-08T16:25:33Z",
         "id" => "5UY53123AX394662R",
@@ -780,7 +780,7 @@ defmodule Paypal.IntegrationTest do
 
     assert {:ok, info} == Paypal.Order.show(order.id)
 
-    Bypass.expect_once(
+    Passby.expect_once(
       bypass,
       "POST",
       "/v2/checkout/orders/5UY53123AX394662R/authorize",
@@ -951,7 +951,7 @@ defmodule Paypal.IntegrationTest do
 
     assert {:ok, authorized} == Paypal.Order.authorize(order.id)
 
-    Bypass.expect_once(bypass, "GET", "/v2/payments/authorizations/27A385875N551040L", fn conn ->
+    Passby.expect_once(bypass, "GET", "/v2/payments/authorizations/27A385875N551040L", fn conn ->
       response(conn, 200, %{
         "amount" => %{"currency_code" => "EUR", "value" => "10.00"},
         "create_time" => "2024-05-08T22:22:22Z",
@@ -1049,7 +1049,7 @@ defmodule Paypal.IntegrationTest do
 
     assert {:ok, payment_info} == Paypal.Payment.show("27A385875N551040L")
 
-    Bypass.expect_once(
+    Passby.expect_once(
       bypass,
       "POST",
       "/v2/payments/authorizations/27A385875N551040L/void",
@@ -1060,7 +1060,7 @@ defmodule Paypal.IntegrationTest do
   end
 
   test "order captured", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/v1/oauth2/token", fn %Plug.Conn{} = conn ->
+    Passby.expect_once(bypass, "POST", "/v1/oauth2/token", fn conn ->
       response(conn, 200, %{
         "access_token" => "ACCESSTOKEN",
         "app_id" => "APP-ID",
@@ -1077,7 +1077,7 @@ defmodule Paypal.IntegrationTest do
     AuthWorker.refresh()
     assert "ACCESSTOKEN" == Paypal.Auth.get_token!()
 
-    Bypass.expect_once(bypass, "POST", "/v2/checkout/orders", fn conn ->
+    Passby.expect_once(bypass, "POST", "/v2/checkout/orders", fn conn ->
       response(conn, 200, %{
         "id" => "5UY53123AX394662R",
         "links" => [
@@ -1122,7 +1122,7 @@ defmodule Paypal.IntegrationTest do
                %{"return_url" => "https://return.com", "cancel_url" => "https://cancel.com"}
              )
 
-    Bypass.expect_once(bypass, "POST", "/v2/checkout/orders/#{order.id}/capture", fn conn ->
+    Passby.expect_once(bypass, "POST", "/v2/checkout/orders/#{order.id}/capture", fn conn ->
       response(conn, 201, %{
         "id" => "7D653782TH669712A",
         "links" => [

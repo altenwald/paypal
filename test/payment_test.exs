@@ -6,7 +6,7 @@ defmodule Paypal.PaymentTest do
   alias Paypal.Payment.RefundRequest
 
   test "Payment.show returns error on 404", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "GET", "/v2/payments/authorizations/non-existent", fn conn ->
+    Passby.expect_once(bypass, "GET", "/v2/payments/authorizations/non-existent", fn conn ->
       response(conn, 404, %{
         "name" => "RESOURCE_NOT_FOUND",
         "message" => "Authorization not found",
@@ -19,7 +19,7 @@ defmodule Paypal.PaymentTest do
   end
 
   test "Payment.void returns error on 422", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/v2/payments/authorizations/auth-123/void", fn conn ->
+    Passby.expect_once(bypass, "POST", "/v2/payments/authorizations/auth-123/void", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot void authorization",
@@ -32,7 +32,7 @@ defmodule Paypal.PaymentTest do
   end
 
   test "Payment.capture returns error on 422", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/v2/payments/authorizations/auth-123/capture", fn conn ->
+    Passby.expect_once(bypass, "POST", "/v2/payments/authorizations/auth-123/capture", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot capture authorization",
@@ -45,7 +45,7 @@ defmodule Paypal.PaymentTest do
   end
 
   test "Payment.refund returns error on 422", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/v2/payments/captures/cap-123/refund", fn conn ->
+    Passby.expect_once(bypass, "POST", "/v2/payments/captures/cap-123/refund", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot refund capture",
