@@ -5,8 +5,8 @@ defmodule Paypal.PaymentTest do
   alias Paypal.Payment.Refund
   alias Paypal.Payment.RefundRequest
 
-  test "Payment.show returns error on 404", %{bypass: bypass} do
-    Passby.expect_once(bypass, "GET", "/v2/payments/authorizations/non-existent", fn conn ->
+  test "Payment.show returns error on 404" do
+    expect_once("GET", "/v2/payments/authorizations/non-existent", fn conn ->
       response(conn, 404, %{
         "name" => "RESOURCE_NOT_FOUND",
         "message" => "Authorization not found",
@@ -18,8 +18,8 @@ defmodule Paypal.PaymentTest do
              Payment.show("non-existent")
   end
 
-  test "Payment.void returns error on 422", %{bypass: bypass} do
-    Passby.expect_once(bypass, "POST", "/v2/payments/authorizations/auth-123/void", fn conn ->
+  test "Payment.void returns error on 422" do
+    expect_once("POST", "/v2/payments/authorizations/auth-123/void", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot void authorization",
@@ -31,8 +31,8 @@ defmodule Paypal.PaymentTest do
              Payment.void("auth-123")
   end
 
-  test "Payment.capture returns error on 422", %{bypass: bypass} do
-    Passby.expect_once(bypass, "POST", "/v2/payments/authorizations/auth-123/capture", fn conn ->
+  test "Payment.capture returns error on 422" do
+    expect_once("POST", "/v2/payments/authorizations/auth-123/capture", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot capture authorization",
@@ -44,8 +44,8 @@ defmodule Paypal.PaymentTest do
              Payment.capture("auth-123")
   end
 
-  test "Payment.refund returns error on 422", %{bypass: bypass} do
-    Passby.expect_once(bypass, "POST", "/v2/payments/captures/cap-123/refund", fn conn ->
+  test "Payment.refund returns error on 422" do
+    expect_once("POST", "/v2/payments/captures/cap-123/refund", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot refund capture",
@@ -88,7 +88,7 @@ defmodule Paypal.PaymentTest do
   end
 
   test "Payment network error cases" do
-    Application.put_env(:paypal, :url, "http://localhost:1")
+    expect(fn conn -> Req.Test.transport_error(conn, :econnrefused) end)
     assert {:error, _} = Payment.show("auth-1")
     assert {:error, _} = Payment.void("auth-1")
     assert {:error, _} = Payment.capture("auth-1")

@@ -103,8 +103,8 @@ defmodule Paypal.OrderTest do
              })
   end
 
-  test "Order.create returns error on API failure", %{bypass: bypass} do
-    Passby.expect_once(bypass, "POST", "/v2/checkout/orders", fn conn ->
+  test "Order.create returns error on API failure" do
+    expect_once("POST", "/v2/checkout/orders", fn conn ->
       response(conn, 400, %{
         "name" => "INVALID_REQUEST",
         "message" => "Validation error",
@@ -120,8 +120,8 @@ defmodule Paypal.OrderTest do
              )
   end
 
-  test "Order.show returns error on 404", %{bypass: bypass} do
-    Passby.expect_once(bypass, "GET", "/v2/checkout/orders/non-existent", fn conn ->
+  test "Order.show returns error on 404" do
+    expect_once("GET", "/v2/checkout/orders/non-existent", fn conn ->
       response(conn, 404, %{
         "name" => "RESOURCE_NOT_FOUND",
         "message" => "Order not found",
@@ -133,8 +133,8 @@ defmodule Paypal.OrderTest do
              Order.show("non-existent")
   end
 
-  test "Order.capture returns error on API failure", %{bypass: bypass} do
-    Passby.expect_once(bypass, "POST", "/v2/checkout/orders/ORD-123/capture", fn conn ->
+  test "Order.capture returns error on API failure" do
+    expect_once("POST", "/v2/checkout/orders/ORD-123/capture", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot capture order",
@@ -146,8 +146,8 @@ defmodule Paypal.OrderTest do
              Order.capture("ORD-123")
   end
 
-  test "Order.authorize returns error on API failure", %{bypass: bypass} do
-    Passby.expect_once(bypass, "POST", "/v2/checkout/orders/ORD-123/authorize", fn conn ->
+  test "Order.authorize returns error on API failure" do
+    expect_once("POST", "/v2/checkout/orders/ORD-123/authorize", fn conn ->
       response(conn, 422, %{
         "name" => "UNPROCESSABLE_ENTITY",
         "message" => "Cannot authorize order",
@@ -167,7 +167,7 @@ defmodule Paypal.OrderTest do
   end
 
   test "Order network error cases" do
-    Application.put_env(:paypal, :url, "http://localhost:1")
+    expect(fn conn -> Req.Test.transport_error(conn, :econnrefused) end)
     assert {:error, _} = Order.show("ORD-1")
     assert {:error, _} = Order.capture("ORD-1")
     assert {:error, _} = Order.authorize("ORD-1")

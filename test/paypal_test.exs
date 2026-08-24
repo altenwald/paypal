@@ -18,11 +18,11 @@ defmodule Paypal.PaypalTest do
     assert_raise MatchError, fn -> Auth.get_token!() end
   end
 
-  test "Paypal.Auth.Worker handle_continue with error", %{bypass: bypass} do
+  test "Paypal.Auth.Worker handle_continue with error" do
     clear_token()
 
-    Passby.expect(bypass, "POST", "/v1/oauth2/token", fn conn ->
-      Passby.resp(conn, 500, "Internal Server Error")
+    expect("POST", "/v1/oauth2/token", fn conn ->
+      response(conn, 500, "Internal Server Error")
     end)
 
     if pid = Process.whereis(AuthWorker) do
@@ -48,7 +48,10 @@ defmodule Paypal.PaypalTest do
   end
 
   test "Paypal.Auth.Request error connection" do
-    Application.put_env(:paypal, :url, "http://localhost:1")
+    expect("POST", "/v1/oauth2/token", fn conn ->
+      Req.Test.transport_error(conn, :econnrefused)
+    end)
+
     assert {:error, _} = AuthRequest.auth()
   end
 

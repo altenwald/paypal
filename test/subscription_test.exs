@@ -22,8 +22,8 @@ defmodule Paypal.SubscriptionTest do
       assert :service in Keyword.keys(Product.types())
     end
 
-    test "create product success", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/catalogs/products", fn conn ->
+    test "create product success" do
+      expect_once("POST", "/v1/catalogs/products", fn conn ->
         response(conn, 201, %{
           "id" => "PROD-123",
           "name" => "Video Streaming",
@@ -55,8 +55,8 @@ defmodule Paypal.SubscriptionTest do
       assert length(product.links) == 1
     end
 
-    test "create product error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/catalogs/products", fn conn ->
+    test "create product error" do
+      expect_once("POST", "/v1/catalogs/products", fn conn ->
         response(conn, 400, %{
           "name" => "INVALID_REQUEST",
           "message" => "Name is required",
@@ -73,8 +73,8 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %{type: _}} = Product.Create.changeset(%{name: "Test"})
     end
 
-    test "list products", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/catalogs/products", fn conn ->
+    test "list products" do
+      expect_once("GET", "/v1/catalogs/products", fn conn ->
         response(conn, 200, %{
           "products" => [
             %{
@@ -94,8 +94,8 @@ defmodule Paypal.SubscriptionTest do
       assert length(list.products) == 1
     end
 
-    test "list products error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/catalogs/products", fn conn ->
+    test "list products error" do
+      expect_once("GET", "/v1/catalogs/products", fn conn ->
         response(conn, 500, %{
           "name" => "INTERNAL_SERVER_ERROR",
           "message" => "Server error",
@@ -106,8 +106,8 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %Paypal.Common.Error{name: "INTERNAL_SERVER_ERROR"}} = Product.list()
     end
 
-    test "show product", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/catalogs/products/PROD-123", fn conn ->
+    test "show product" do
+      expect_once("GET", "/v1/catalogs/products/PROD-123", fn conn ->
         response(conn, 200, %{
           "id" => "PROD-123",
           "name" => "Video Streaming",
@@ -119,8 +119,8 @@ defmodule Paypal.SubscriptionTest do
       assert product.id == "PROD-123"
     end
 
-    test "show product error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/catalogs/products/PROD-999", fn conn ->
+    test "show product error" do
+      expect_once("GET", "/v1/catalogs/products/PROD-999", fn conn ->
         response(conn, 404, %{
           "name" => "RESOURCE_NOT_FOUND",
           "message" => "Not found",
@@ -131,9 +131,9 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %Paypal.Common.Error{name: "RESOURCE_NOT_FOUND"}} = Product.show("PROD-999")
     end
 
-    test "update product", %{bypass: bypass} do
-      Passby.expect_once(bypass, "PATCH", "/v1/catalogs/products/PROD-123", fn conn ->
-        Passby.resp(conn, 204, "")
+    test "update product" do
+      expect_once("PATCH", "/v1/catalogs/products/PROD-123", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok ==
@@ -142,8 +142,8 @@ defmodule Paypal.SubscriptionTest do
                ])
     end
 
-    test "update product error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "PATCH", "/v1/catalogs/products/PROD-123", fn conn ->
+    test "update product error" do
+      expect_once("PATCH", "/v1/catalogs/products/PROD-123", fn conn ->
         response(conn, 400, %{
           "name" => "INVALID_PATCH_OPERATION",
           "message" => "Invalid patch",
@@ -156,7 +156,7 @@ defmodule Paypal.SubscriptionTest do
     end
 
     test "Product network error cases" do
-      Application.put_env(:paypal, :url, "http://localhost:1")
+      expect(fn conn -> Req.Test.transport_error(conn, :econnrefused) end)
       assert {:error, _} = Product.create(%{name: "P", type: :service})
       assert {:error, _} = Product.list()
       assert {:error, _} = Product.show("PROD-1")
@@ -171,8 +171,8 @@ defmodule Paypal.SubscriptionTest do
       assert :inactive in Keyword.keys(Plan.statuses())
     end
 
-    test "create plan success", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/plans", fn conn ->
+    test "create plan success" do
+      expect_once("POST", "/v1/billing/plans", fn conn ->
         response(conn, 201, %{
           "id" => "P-123",
           "product_id" => "PROD-123",
@@ -230,8 +230,8 @@ defmodule Paypal.SubscriptionTest do
       assert length(plan.billing_cycles) == 1
     end
 
-    test "create plan error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/plans", fn conn ->
+    test "create plan error" do
+      expect_once("POST", "/v1/billing/plans", fn conn ->
         response(conn, 400, %{
           "name" => "INVALID_REQUEST",
           "message" => "Validation error",
@@ -258,8 +258,8 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %{billing_cycles: _}} = Plan.Create.changeset(%{product_id: "P", name: "N"})
     end
 
-    test "list plans", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/billing/plans", fn conn ->
+    test "list plans" do
+      expect_once("GET", "/v1/billing/plans", fn conn ->
         response(conn, 200, %{
           "plans" => [
             %{
@@ -280,8 +280,8 @@ defmodule Paypal.SubscriptionTest do
       assert length(list.plans) == 1
     end
 
-    test "list plans error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/billing/plans", fn conn ->
+    test "list plans error" do
+      expect_once("GET", "/v1/billing/plans", fn conn ->
         response(conn, 500, %{
           "name" => "INTERNAL_SERVER_ERROR",
           "message" => "Error",
@@ -292,8 +292,8 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %Paypal.Common.Error{name: "INTERNAL_SERVER_ERROR"}} = Plan.list()
     end
 
-    test "show plan", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/billing/plans/P-123", fn conn ->
+    test "show plan" do
+      expect_once("GET", "/v1/billing/plans/P-123", fn conn ->
         response(conn, 200, %{
           "id" => "P-123",
           "product_id" => "PROD-123",
@@ -306,8 +306,8 @@ defmodule Paypal.SubscriptionTest do
       assert plan.id == "P-123"
     end
 
-    test "show plan error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/billing/plans/P-999", fn conn ->
+    test "show plan error" do
+      expect_once("GET", "/v1/billing/plans/P-999", fn conn ->
         response(conn, 404, %{
           "name" => "RESOURCE_NOT_FOUND",
           "message" => "Plan not found",
@@ -318,9 +318,9 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %Paypal.Common.Error{name: "RESOURCE_NOT_FOUND"}} = Plan.show("P-999")
     end
 
-    test "update plan", %{bypass: bypass} do
-      Passby.expect_once(bypass, "PATCH", "/v1/billing/plans/P-123", fn conn ->
-        Passby.resp(conn, 204, "")
+    test "update plan" do
+      expect_once("PATCH", "/v1/billing/plans/P-123", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok ==
@@ -329,8 +329,8 @@ defmodule Paypal.SubscriptionTest do
                ])
     end
 
-    test "update plan error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "PATCH", "/v1/billing/plans/P-123", fn conn ->
+    test "update plan error" do
+      expect_once("PATCH", "/v1/billing/plans/P-123", fn conn ->
         response(conn, 400, %{
           "name" => "INVALID_REQUEST",
           "message" => "Cannot patch",
@@ -342,22 +342,22 @@ defmodule Paypal.SubscriptionTest do
                Plan.update("P-123", [%{op: "replace"}])
     end
 
-    test "activate and deactivate plan", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/plans/P-123/activate", fn conn ->
-        Passby.resp(conn, 204, "")
+    test "activate and deactivate plan" do
+      expect_once("POST", "/v1/billing/plans/P-123/activate", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok == Plan.activate("P-123")
 
-      Passby.expect_once(bypass, "POST", "/v1/billing/plans/P-123/deactivate", fn conn ->
-        Passby.resp(conn, 204, "")
+      expect_once("POST", "/v1/billing/plans/P-123/deactivate", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok == Plan.deactivate("P-123")
     end
 
-    test "activate and deactivate plan errors", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/plans/P-123/activate", fn conn ->
+    test "activate and deactivate plan errors" do
+      expect_once("POST", "/v1/billing/plans/P-123/activate", fn conn ->
         response(conn, 422, %{
           "name" => "UNPROCESSABLE_ENTITY",
           "message" => "Cannot activate",
@@ -367,7 +367,7 @@ defmodule Paypal.SubscriptionTest do
 
       assert {:error, %Paypal.Common.Error{name: "UNPROCESSABLE_ENTITY"}} = Plan.activate("P-123")
 
-      Passby.expect_once(bypass, "POST", "/v1/billing/plans/P-123/deactivate", fn conn ->
+      expect_once("POST", "/v1/billing/plans/P-123/deactivate", fn conn ->
         response(conn, 422, %{
           "name" => "UNPROCESSABLE_ENTITY",
           "message" => "Cannot deactivate",
@@ -379,13 +379,12 @@ defmodule Paypal.SubscriptionTest do
                Plan.deactivate("P-123")
     end
 
-    test "update_pricing_schemes", %{bypass: bypass} do
-      Passby.expect_once(
-        bypass,
+    test "update_pricing_schemes" do
+      expect_once(
         "POST",
         "/v1/billing/plans/P-123/update-pricing-schemes",
         fn conn ->
-          Passby.resp(conn, 204, "")
+          response(conn, 204, "")
         end
       )
 
@@ -400,9 +399,8 @@ defmodule Paypal.SubscriptionTest do
                ])
     end
 
-    test "update_pricing_schemes error", %{bypass: bypass} do
-      Passby.expect_once(
-        bypass,
+    test "update_pricing_schemes error" do
+      expect_once(
         "POST",
         "/v1/billing/plans/P-123/update-pricing-schemes",
         fn conn ->
@@ -437,7 +435,7 @@ defmodule Paypal.SubscriptionTest do
     end
 
     test "Plan network error cases" do
-      Application.put_env(:paypal, :url, "http://localhost:1")
+      expect(fn conn -> Req.Test.transport_error(conn, :econnrefused) end)
 
       assert {:error, _} =
                Plan.create(%{
@@ -470,8 +468,8 @@ defmodule Paypal.SubscriptionTest do
       assert :expired in Keyword.keys(Subscription.statuses())
     end
 
-    test "create subscription success", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions", fn conn ->
+    test "create subscription success" do
+      expect_once("POST", "/v1/billing/subscriptions", fn conn ->
         response(conn, 201, %{
           "id" => "I-BW452GLLEP1G",
           "plan_id" => "P-123",
@@ -512,8 +510,8 @@ defmodule Paypal.SubscriptionTest do
       assert length(sub.links) == 1
     end
 
-    test "create subscription error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions", fn conn ->
+    test "create subscription error" do
+      expect_once("POST", "/v1/billing/subscriptions", fn conn ->
         response(conn, 400, %{
           "name" => "INVALID_REQUEST",
           "message" => "Plan ID invalid",
@@ -529,8 +527,8 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %{plan_id: _}} = Create.changeset(%{})
     end
 
-    test "show subscription", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/billing/subscriptions/I-123", fn conn ->
+    test "show subscription" do
+      expect_once("GET", "/v1/billing/subscriptions/I-123", fn conn ->
         response(conn, 200, %{
           "id" => "I-123",
           "plan_id" => "P-123",
@@ -549,8 +547,8 @@ defmodule Paypal.SubscriptionTest do
       assert sub.billing_info.failed_payments_count == 0
     end
 
-    test "show subscription error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "GET", "/v1/billing/subscriptions/I-999", fn conn ->
+    test "show subscription error" do
+      expect_once("GET", "/v1/billing/subscriptions/I-999", fn conn ->
         response(conn, 404, %{
           "name" => "RESOURCE_NOT_FOUND",
           "message" => "Subscription not found",
@@ -562,9 +560,9 @@ defmodule Paypal.SubscriptionTest do
                Subscription.show("I-999")
     end
 
-    test "update subscription", %{bypass: bypass} do
-      Passby.expect_once(bypass, "PATCH", "/v1/billing/subscriptions/I-123", fn conn ->
-        Passby.resp(conn, 204, "")
+    test "update subscription" do
+      expect_once("PATCH", "/v1/billing/subscriptions/I-123", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok ==
@@ -573,8 +571,8 @@ defmodule Paypal.SubscriptionTest do
                ])
     end
 
-    test "update subscription error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "PATCH", "/v1/billing/subscriptions/I-123", fn conn ->
+    test "update subscription error" do
+      expect_once("PATCH", "/v1/billing/subscriptions/I-123", fn conn ->
         response(conn, 400, %{
           "name" => "INVALID_REQUEST",
           "message" => "Patch failed",
@@ -586,8 +584,8 @@ defmodule Paypal.SubscriptionTest do
                Subscription.update("I-123", [%{op: "replace"}])
     end
 
-    test "revise subscription", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/revise", fn conn ->
+    test "revise subscription" do
+      expect_once("POST", "/v1/billing/subscriptions/I-123/revise", fn conn ->
         response(conn, 200, %{
           "plan_id" => "P-NEW-PLAN",
           "quantity" => "2",
@@ -606,8 +604,8 @@ defmodule Paypal.SubscriptionTest do
                Subscription.revise("I-123", %{"plan_id" => "P-NEW-PLAN", "quantity" => "2"})
     end
 
-    test "revise subscription error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/revise", fn conn ->
+    test "revise subscription error" do
+      expect_once("POST", "/v1/billing/subscriptions/I-123/revise", fn conn ->
         response(conn, 422, %{
           "name" => "UNPROCESSABLE_ENTITY",
           "message" => "Cannot revise",
@@ -619,28 +617,28 @@ defmodule Paypal.SubscriptionTest do
                Subscription.revise("I-123", %{})
     end
 
-    test "suspend, cancel, and activate subscription", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/suspend", fn conn ->
-        Passby.resp(conn, 204, "")
+    test "suspend, cancel, and activate subscription" do
+      expect_once("POST", "/v1/billing/subscriptions/I-123/suspend", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok == Subscription.suspend("I-123", "Pause")
 
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/activate", fn conn ->
-        Passby.resp(conn, 204, "")
+      expect_once("POST", "/v1/billing/subscriptions/I-123/activate", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok == Subscription.activate("I-123", "Resume")
 
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/cancel", fn conn ->
-        Passby.resp(conn, 204, "")
+      expect_once("POST", "/v1/billing/subscriptions/I-123/cancel", fn conn ->
+        response(conn, 204, "")
       end)
 
       assert :ok == Subscription.cancel("I-123", "Quit")
     end
 
-    test "suspend, cancel, and activate subscription errors", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/suspend", fn conn ->
+    test "suspend, cancel, and activate subscription errors" do
+      expect_once("POST", "/v1/billing/subscriptions/I-123/suspend", fn conn ->
         response(conn, 422, %{
           "name" => "UNPROCESSABLE_ENTITY",
           "message" => "Cannot suspend",
@@ -651,7 +649,7 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %Paypal.Common.Error{name: "UNPROCESSABLE_ENTITY"}} =
                Subscription.suspend("I-123")
 
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/activate", fn conn ->
+      expect_once("POST", "/v1/billing/subscriptions/I-123/activate", fn conn ->
         response(conn, 422, %{
           "name" => "UNPROCESSABLE_ENTITY",
           "message" => "Cannot activate",
@@ -662,7 +660,7 @@ defmodule Paypal.SubscriptionTest do
       assert {:error, %Paypal.Common.Error{name: "UNPROCESSABLE_ENTITY"}} =
                Subscription.activate("I-123")
 
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/cancel", fn conn ->
+      expect_once("POST", "/v1/billing/subscriptions/I-123/cancel", fn conn ->
         response(conn, 422, %{
           "name" => "UNPROCESSABLE_ENTITY",
           "message" => "Cannot cancel",
@@ -674,8 +672,8 @@ defmodule Paypal.SubscriptionTest do
                Subscription.cancel("I-123")
     end
 
-    test "capture subscription", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/capture", fn conn ->
+    test "capture subscription" do
+      expect_once("POST", "/v1/billing/subscriptions/I-123/capture", fn conn ->
         response(conn, 200, %{
           "id" => "CAP-123",
           "status" => "COMPLETED",
@@ -692,8 +690,8 @@ defmodule Paypal.SubscriptionTest do
                })
     end
 
-    test "capture subscription error", %{bypass: bypass} do
-      Passby.expect_once(bypass, "POST", "/v1/billing/subscriptions/I-123/capture", fn conn ->
+    test "capture subscription error" do
+      expect_once("POST", "/v1/billing/subscriptions/I-123/capture", fn conn ->
         response(conn, 422, %{
           "name" => "UNPROCESSABLE_ENTITY",
           "message" => "Cannot capture",
@@ -705,9 +703,8 @@ defmodule Paypal.SubscriptionTest do
                Subscription.capture("I-123", %{})
     end
 
-    test "transactions list", %{bypass: bypass} do
-      Passby.expect_once(
-        bypass,
+    test "transactions list" do
+      expect_once(
         "GET",
         "/v1/billing/subscriptions/I-123/transactions",
         fn conn ->
@@ -741,9 +738,8 @@ defmodule Paypal.SubscriptionTest do
                Transaction.cast(%{"id" => "TX-1", "status" => "COMPLETED"})
     end
 
-    test "transactions list error", %{bypass: bypass} do
-      Passby.expect_once(
-        bypass,
+    test "transactions list error" do
+      expect_once(
         "GET",
         "/v1/billing/subscriptions/I-123/transactions",
         fn conn ->
@@ -775,7 +771,7 @@ defmodule Paypal.SubscriptionTest do
     end
 
     test "Subscription network error cases" do
-      Application.put_env(:paypal, :url, "http://localhost:1")
+      expect(fn conn -> Req.Test.transport_error(conn, :econnrefused) end)
       assert {:error, _} = Subscription.create(%{plan_id: "P-1"})
       assert {:error, _} = Subscription.show("I-1")
       assert {:error, _} = Subscription.update("I-1", [])
