@@ -183,9 +183,14 @@ defmodule Paypal.OrderTest do
                   "status" => "COMPLETED",
                   "final_capture" => true,
                   "disbursement_mode" => "INSTANT",
+                  "seller_protection" => %{
+                    "status" => "ELIGIBLE",
+                    "dispute_categories" => ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"]
+                  },
                   "seller_receivable_breakdown" => %{
                     "gross_amount" => %{"currency_code" => "EUR", "value" => "10.00"},
-                    "paypal_fee" => %{"currency_code" => "EUR", "value" => "0.59"}
+                    "paypal_fee" => %{"currency_code" => "EUR", "value" => "0.59"},
+                    "net_amount" => %{"currency_code" => "EUR", "value" => "9.41"}
                   },
                   "amount" => %{"currency_code" => "EUR", "value" => "10.00"}
                 }
@@ -197,8 +202,22 @@ defmodule Paypal.OrderTest do
     end)
 
     assert {:ok, %Paypal.Order.Info{purchase_units: [unit]}} = Order.show("ORD-CAPTURED")
-    assert [%UnitCapture{id: "CAP-1", seller_receivable_breakdown: breakdown}] = unit.payments.captures
-    assert breakdown["paypal_fee"]["value"] == "0.59"
+    assert [%UnitCapture{id: "CAP-1"} = capture] = unit.payments.captures
+
+    assert %Paypal.Order.PurchaseUnit.SellerProtection{
+             status: "ELIGIBLE",
+             dispute_categories: ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"]
+           } = capture.seller_protection
+
+    assert %Paypal.Order.PurchaseUnit.SellerReceivableBreakdown{
+             gross_amount: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: gross},
+             paypal_fee: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: fee},
+             net_amount: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: net}
+           } = capture.seller_receivable_breakdown
+
+    assert Decimal.equal?(gross, Decimal.new("10.00"))
+    assert Decimal.equal?(fee, Decimal.new("0.59"))
+    assert Decimal.equal?(net, Decimal.new("9.41"))
   end
 
   test "Order network error cases" do

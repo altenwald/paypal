@@ -15,8 +15,8 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
     - `amount` - An embedded schema representing the monetary amount of the capture.
     - `disbursement_mode` - Either `:instant` or `:delayed`.
     - `processor_response` - An embedded schema containing details about the processor response.
-    - `seller_protection` - An embedded schema containing details about seller protection.
-    - `seller_receivable_breakdown` - An embedded schema that details the receivables.
+    - `seller_protection` - Whether the capture is covered by seller protection, see `Paypal.Order.PurchaseUnit.SellerProtection`.
+    - `seller_receivable_breakdown` - The fee/net breakdown for the capture, see `Paypal.Order.PurchaseUnit.SellerReceivableBreakdown`.
     - `network_transaction_reference` - Reference values used by the card network to identify a transaction.
     - `links` - A list of embedded link objects for further API actions.
   """
@@ -25,6 +25,8 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
   import Ecto.Changeset
   alias Paypal.Common.CurrencyValue
   alias Paypal.Common.Link
+  alias Paypal.Order.PurchaseUnit.SellerProtection
+  alias Paypal.Order.PurchaseUnit.SellerReceivableBreakdown
 
   @disbursement_modes [
     instant: "INSTANT",
@@ -41,10 +43,8 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
     field(:final_capture, :boolean)
     field(:create_time, :string)
     field(:update_time, :string)
-    # TODO
-    field(:seller_protection, :map)
-    # TODO
-    field(:seller_receivable_breakdown, :map)
+    embeds_one(:seller_protection, SellerProtection)
+    embeds_one(:seller_receivable_breakdown, SellerReceivableBreakdown)
     # TODO
     field(:network_transaction_reference, :map)
     field(:disbursement_mode, Ecto.Enum, values: @disbursement_modes, embed_as: :dumped)
@@ -62,9 +62,7 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
     invoice_id
     custom_id
     network_transaction_reference
-    seller_protection
     final_capture
-    seller_receivable_breakdown
     disbursement_mode
     processor_response
     create_time
@@ -77,5 +75,7 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
     |> cast(params, @fields)
     |> cast_embed(:amount, required: true)
     |> cast_embed(:links)
+    |> cast_embed(:seller_protection)
+    |> cast_embed(:seller_receivable_breakdown)
   end
 end

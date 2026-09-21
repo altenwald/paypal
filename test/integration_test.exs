@@ -1247,14 +1247,14 @@ defmodule Paypal.IntegrationTest do
                     rel: "up"
                   }
                 ],
-                seller_protection: %{
-                  "dispute_categories" => ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"],
-                  "status" => "ELIGIBLE"
+                seller_protection: %Paypal.Order.PurchaseUnit.SellerProtection{
+                  status: "ELIGIBLE",
+                  dispute_categories: ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"]
                 },
-                seller_receivable_breakdown: %{
-                  "gross_amount" => %{"currency_code" => "EUR", "value" => "10.00"},
-                  "net_amount" => %{"currency_code" => "EUR", "value" => "9.31"},
-                  "paypal_fee" => %{"currency_code" => "EUR", "value" => "0.69"}
+                seller_receivable_breakdown: %Paypal.Order.PurchaseUnit.SellerReceivableBreakdown{
+                  gross_amount: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: Decimal.new("10.00")},
+                  net_amount: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: Decimal.new("9.31")},
+                  paypal_fee: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: Decimal.new("0.69")}
                 },
                 status: "COMPLETED",
                 update_time: "2024-05-10T12:19:16Z"
