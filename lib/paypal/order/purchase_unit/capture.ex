@@ -13,7 +13,7 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
     - `create_time` - The date and time when the capture was created (ISO 8601 string).
     - `update_time` - The date and time when the capture was last updated (ISO 8601 string).
     - `amount` - An embedded schema representing the monetary amount of the capture.
-    - `disbursement_mode` - An embedded schema containing details about the disbursement mode.
+    - `disbursement_mode` - Either `:instant` or `:delayed`.
     - `processor_response` - An embedded schema containing details about the processor response.
     - `seller_protection` - An embedded schema containing details about seller protection.
     - `seller_receivable_breakdown` - An embedded schema that details the receivables.
@@ -25,6 +25,11 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
   import Ecto.Changeset
   alias Paypal.Common.CurrencyValue
   alias Paypal.Common.Link
+
+  @disbursement_modes [
+    instant: "INSTANT",
+    delayed: "DELAYED"
+  ]
 
   @primary_key false
   typed_embedded_schema do
@@ -42,8 +47,7 @@ defmodule Paypal.Order.PurchaseUnit.Capture do
     field(:seller_receivable_breakdown, :map)
     # TODO
     field(:network_transaction_reference, :map)
-    # TODO
-    field(:disbursement_mode, :map)
+    field(:disbursement_mode, Ecto.Enum, values: @disbursement_modes, embed_as: :dumped)
     # TODO
     field(:processor_response, :map)
 

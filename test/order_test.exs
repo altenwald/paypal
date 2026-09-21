@@ -166,6 +166,41 @@ defmodule Paypal.OrderTest do
            }).valid?
   end
 
+  test "Order.show decodes a completed capture with a real disbursement_mode string" do
+    expect_once("GET", "/v2/checkout/orders/ORD-CAPTURED", fn conn ->
+      response(conn, 200, %{
+        "id" => "ORD-CAPTURED",
+        "intent" => "AUTHORIZE",
+        "status" => "COMPLETED",
+        "purchase_units" => [
+          %{
+            "reference_id" => "default",
+            "amount" => %{"currency_code" => "EUR", "value" => "10.00"},
+            "payments" => %{
+              "captures" => [
+                %{
+                  "id" => "CAP-1",
+                  "status" => "COMPLETED",
+                  "final_capture" => true,
+                  "disbursement_mode" => "INSTANT",
+                  "seller_receivable_breakdown" => %{
+                    "gross_amount" => %{"currency_code" => "EUR", "value" => "10.00"},
+                    "paypal_fee" => %{"currency_code" => "EUR", "value" => "0.59"}
+                  },
+                  "amount" => %{"currency_code" => "EUR", "value" => "10.00"}
+                }
+              ]
+            }
+          }
+        ]
+      })
+    end)
+
+    assert {:ok, %Paypal.Order.Info{purchase_units: [unit]}} = Order.show("ORD-CAPTURED")
+    assert [%UnitCapture{id: "CAP-1", seller_receivable_breakdown: breakdown}] = unit.payments.captures
+    assert breakdown["paypal_fee"]["value"] == "0.59"
+  end
+
   test "Order network error cases" do
     expect(fn conn -> Req.Test.transport_error(conn, :econnrefused) end)
     assert {:error, _} = Order.show("ORD-1")
