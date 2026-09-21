@@ -1,7 +1,7 @@
 defmodule Paypal.MixProject do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.3.0"
   @source_url "https://github.com/altenwald/paypal"
 
   def project do
@@ -164,7 +164,7 @@ defmodule Paypal.MixProject do
 
   defp package do
     [
-      files: ~w[ lib mix.exs README* COPYING* .formatter.exs ],
+      files: ~w[ lib mix.exs README* COPYING* .formatter.exs test/support ],
       maintainers: ["Manuel Rubio"],
       licenses: ["MIT"],
       links: %{
