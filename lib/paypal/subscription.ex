@@ -33,7 +33,6 @@ defmodule Paypal.Subscription do
   - `Paypal.Subscription.Product` - Catalog Products management.
   - `Paypal.Subscription.Plan` - Billing Plans management.
   """
-  require Logger
 
   alias Paypal.Client
   alias Paypal.Common.Error, as: CommonError

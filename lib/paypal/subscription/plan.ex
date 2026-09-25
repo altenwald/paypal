@@ -8,7 +8,6 @@ defmodule Paypal.Subscription.Plan do
   Official PayPal API Documentation:
   [PayPal Billing Plans API v1](https://developer.paypal.com/docs/api/subscriptions/v1/#plans)
   """
-  require Logger
 
   alias Paypal.Client
   alias Paypal.Common.Error, as: CommonError

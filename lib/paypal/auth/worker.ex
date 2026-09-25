@@ -50,7 +50,7 @@ defmodule Paypal.Auth.Worker do
 
   @impl GenServer
   @doc false
-  def handle_continue(:refresh, state) do
+  def handle_continue(:refresh, %__MODULE__{} = state) do
     if timer_ref = state.timer_ref, do: Process.cancel_timer(timer_ref)
 
     with {:ok, access_params} <- Auth.Request.auth(),

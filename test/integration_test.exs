@@ -1252,9 +1252,18 @@ defmodule Paypal.IntegrationTest do
                   dispute_categories: ["ITEM_NOT_RECEIVED", "UNAUTHORIZED_TRANSACTION"]
                 },
                 seller_receivable_breakdown: %Paypal.Order.PurchaseUnit.SellerReceivableBreakdown{
-                  gross_amount: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: Decimal.new("10.00")},
-                  net_amount: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: Decimal.new("9.31")},
-                  paypal_fee: %Paypal.Common.CurrencyValue{currency_code: "EUR", value: Decimal.new("0.69")}
+                  gross_amount: %Paypal.Common.CurrencyValue{
+                    currency_code: "EUR",
+                    value: Decimal.new("10.00")
+                  },
+                  net_amount: %Paypal.Common.CurrencyValue{
+                    currency_code: "EUR",
+                    value: Decimal.new("9.31")
+                  },
+                  paypal_fee: %Paypal.Common.CurrencyValue{
+                    currency_code: "EUR",
+                    value: Decimal.new("0.69")
+                  }
                 },
                 status: "COMPLETED",
                 update_time: "2024-05-10T12:19:16Z"

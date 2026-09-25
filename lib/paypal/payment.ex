@@ -5,7 +5,6 @@ defmodule Paypal.Payment do
   Official PayPal API Documentation:
   [PayPal Payments API v2](https://developer.paypal.com/docs/api/payments/v2/)
   """
-  require Logger
 
   alias Paypal.Client
   alias Paypal.Common.Error, as: PaymentError

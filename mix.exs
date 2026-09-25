@@ -17,8 +17,13 @@ defmodule Paypal.MixProject do
       description: "Paypal API v2 & Subscriptions API with Req",
       docs: docs(),
       package: package(),
-      test_coverage: [summary: [threshold: 90]],
-      preferred_cli_env: [
+      test_coverage: [summary: [threshold: 90]]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
         check: :test
       ]
     ]
@@ -119,6 +124,8 @@ defmodule Paypal.MixProject do
           Paypal.Order.PurchaseUnit.Capture,
           Paypal.Order.PurchaseUnit.Item,
           Paypal.Order.PurchaseUnit.PaymentCollection,
+          Paypal.Order.PurchaseUnit.SellerProtection,
+          Paypal.Order.PurchaseUnit.SellerReceivableBreakdown,
           Paypal.Order.UpcCode
         ],
         Payment: [

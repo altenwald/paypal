@@ -2,7 +2,6 @@ defmodule Paypal.Auth.Request do
   @moduledoc """
   Performs OAuth2 authentication against PayPal to retrieve an access token.
   """
-  require Logger
 
   @doc """
   Perform the authorization and retrieve the response.

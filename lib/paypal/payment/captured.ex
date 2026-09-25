@@ -48,7 +48,7 @@ defmodule Paypal.Payment.Captured do
     embeds_many(:links, Link)
     field(:status, Ecto.Enum, values: @statuses, embed_as: :dumped)
 
-    # TODO https://developer.paypal.com/docs/api/payments/v2/#authorizations_capture!c=201&path=status_details/reason&t=response
+    # Note: https://developer.paypal.com/docs/api/payments/v2/#authorizations_capture!c=201&path=status_details/reason&t=response
     field(:status_details, :map)
 
     field(:disbursement_mode, Ecto.Enum,

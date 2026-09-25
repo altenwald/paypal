@@ -8,7 +8,6 @@ defmodule Paypal.Subscription.Product do
   Official PayPal API Documentation:
   [PayPal Catalog Products API v1](https://developer.paypal.com/docs/api/catalog-products/v1/)
   """
-  require Logger
 
   alias Paypal.Client
   alias Paypal.Common.Error, as: CommonError

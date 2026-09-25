@@ -24,7 +24,6 @@ defmodule Paypal.Order do
   Official PayPal API Documentation:
   [PayPal Orders API v2](https://developer.paypal.com/docs/api/orders/v2/)
   """
-  require Logger
 
   alias Paypal.Client
   alias Paypal.Common.Error, as: OrderError
