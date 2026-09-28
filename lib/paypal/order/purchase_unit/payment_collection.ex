@@ -8,18 +8,17 @@ defmodule Paypal.Order.PurchaseUnit.PaymentCollection do
   use TypedEctoSchema
   import Ecto.Changeset
 
+  alias Paypal.Order.Authorization
   alias Paypal.Order.PurchaseUnit.Capture
 
   typed_embedded_schema do
     embeds_many(:captures, Capture)
-    # TODO
-    field(:authorizations, :map)
+    embeds_many(:authorizations, Authorization)
     # TODO
     field(:refunds, :map)
   end
 
   @fields ~w[
-    authorizations
     refunds
   ]a
 
@@ -28,5 +27,6 @@ defmodule Paypal.Order.PurchaseUnit.PaymentCollection do
     model
     |> cast(params, @fields)
     |> cast_embed(:captures, with: &Capture.changeset/2)
+    |> cast_embed(:authorizations, with: &Authorization.changeset/2)
   end
 end

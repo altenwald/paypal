@@ -5,6 +5,7 @@ defmodule Paypal.Order.Authorization do
   authorized payment.
   """
   use TypedEctoSchema
+  import Ecto.Changeset
 
   alias Paypal.Common.CurrencyValue
   alias Paypal.Common.Link
@@ -55,7 +56,7 @@ defmodule Paypal.Order.Authorization do
       of disputes.
       """
 
-      field(:status, Ecto.Enum, values: @seller_protection_statuses)
+      field(:status, Ecto.Enum, values: @seller_protection_statuses, embed_as: :dumped)
       # XXX looks like the categories are specific but the documentation is
       #     not listen them, so we are going to use `string` here.
       field(:dispute_categories, {:array, :string})
@@ -65,5 +66,24 @@ defmodule Paypal.Order.Authorization do
     field(:create_time, :utc_datetime)
     field(:update_time, :utc_datetime)
     embeds_many(:links, Link)
+  end
+
+  @doc false
+  @spec changeset(t(), map()) :: Ecto.Changeset.t(t())
+  def changeset(model \\ %__MODULE__{}, params) do
+    model
+    |> cast(params, ~w[id status status_details invoice_id custom_id
+                      network_transaction_reference expiration_time create_time update_time]a)
+    |> cast_embed(:amount)
+    |> cast_embed(:seller_protection,
+      with: fn protection, attrs ->
+        cast(protection, attrs, [:status, :dispute_categories])
+      end
+    )
+    |> cast_embed(:links,
+      with: fn link, attrs ->
+        cast(link, attrs, [:enc_type, :href, :rel, :method])
+      end
+    )
   end
 end
